@@ -1,34 +1,82 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { BrandService } from './brand.service';
 import { CreateBrandDto } from './dto/create-brand.dto';
 import { UpdateBrandDto } from './dto/update-brand.dto';
+import { ApiQuery } from '@nestjs/swagger';
+import { RoleGuard } from 'src/role/role.guard';
+import { Roles } from 'src/user/decorators/roles.decorators';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { RoleStatus } from '@prisma/client';
 
 @Controller('brand')
 export class BrandController {
   constructor(private readonly brandService: BrandService) {}
 
+  @Roles(RoleStatus.ADMIN)
+  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard)
   @Post()
-  create(@Body() createBrandDto: CreateBrandDto) {
-    return this.brandService.create(createBrandDto);
+  create(@Body() data: CreateBrandDto) {
+    return this.brandService.create(data);
   }
 
   @Get()
-  findAll() {
-    return this.brandService.findAll();
+  @ApiQuery({
+    name: 'search',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'sort',
+    required: false,
+    enum: ['asc', 'desc'],
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+  })
+  findAll(
+    @Query('search') search?: string,
+    @Query('sort') sort?: 'asc' | 'desc',
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+  ) {
+    return this.brandService.findAll({ search, sort, page, limit });
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.brandService.findOne(+id);
+    return this.brandService.findOne(id);
   }
 
+  @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
+  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBrandDto: UpdateBrandDto) {
-    return this.brandService.update(+id, updateBrandDto);
+  update(@Param('id') id: string, @Body() data: UpdateBrandDto) {
+    return this.brandService.update(id, data);
   }
 
+  @Roles(RoleStatus.ADMIN)
+  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.brandService.remove(+id);
+    return this.brandService.remove(id);
   }
 }

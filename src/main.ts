@@ -7,7 +7,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()
-    .setTitle('Full Auth with NestJs')
+    .setTitle('MyWorkers with NestJs')
     .setVersion('1.0')
     .addSecurityRequirements('bearer', ['bearer'])
     .addBearerAuth()

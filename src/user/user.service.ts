@@ -82,6 +82,12 @@ export class UserService {
         where: { email: data.email },
       });
 
+      if (data.role && data.role.toUpperCase() === 'ADMIN') {
+        throw new BadRequestException(
+          'You are not allowed to register as ADMIN',
+        );
+      }
+
       if (existingUser) {
         throw new BadRequestException('User already exists!');
       }
@@ -129,6 +135,12 @@ export class UserService {
       const existingUser = await this.prisma.user.findFirst({
         where: { email: data.email },
       });
+
+      if (data.role && data.role.toUpperCase() === 'ADMIN') {
+        throw new BadRequestException(
+          'You are not allowed to register as ADMIN',
+        );
+      }
 
       if (existingUser) {
         throw new BadRequestException('User already exists!');

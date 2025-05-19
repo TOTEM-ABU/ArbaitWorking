@@ -21,6 +21,8 @@ import { ShowcaseModule } from './showcase/showcase.module';
 import { PartnerModule } from './partner/partner.module';
 import { MailModule } from './mail/mail.module';
 import { JwtModule } from '@nestjs/jwt';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -47,6 +49,10 @@ import { JwtModule } from '@nestjs/jwt';
       global: true,
       secret: 'soz',
       signOptions: { expiresIn: '60s' },
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'),
+      serveRoot: '/uploads',
     }),
   ],
   controllers: [AppController],
