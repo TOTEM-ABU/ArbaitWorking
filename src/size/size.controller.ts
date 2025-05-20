@@ -30,6 +30,9 @@ export class SizeController {
     return this.sizeService.create(data);
   }
 
+  // @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
+  // @UseGuards(RoleGuard)
+  // @UseGuards(AuthGuard)
   @Get()
   @ApiQuery({
     name: 'search',
@@ -59,6 +62,9 @@ export class SizeController {
     return this.sizeService.findAll({ search, sort, page, limit });
   }
 
+  // @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
+  // @UseGuards(RoleGuard)
+  // @UseGuards(AuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.sizeService.findOne(id);

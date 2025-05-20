@@ -3,7 +3,6 @@ import {
   IsNumber,
   IsString,
   IsUrl,
-  IsUUID,
   ValidateNested,
 } from 'class-validator';
 import { BrandToolDto } from './brandTool.dto';

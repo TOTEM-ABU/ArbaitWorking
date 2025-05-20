@@ -56,9 +56,10 @@ model User {
   deviceInfo   String?
   isVerified   Boolean    @default(false)
 
-  session Session[]
-  order   Order[]
-  comment Comment[]
+  session     Session[]
+  order       Order[]
+  comment     Comment[]
+  masterStart MasterStart[]
 
   createdAt DateTime @default(now())
 }
@@ -127,7 +128,6 @@ model Tool {
   isActive   Boolean @default(true)
 
   toolProduct ToolProduct[]
-  toolMaster  ToolMaster[]
   orderTools  OrderTool[]
 
   ToolBrand    ToolBrand[]
@@ -138,11 +138,14 @@ model Tool {
 }
 
 model Level {
-  id   String @id @default(uuid())
-  name String
+  id              String @id @default(uuid())
+  name            String
+  minWorkingHours Int
+  priceHourly     Float
+  priceDaily      Int
 
-  product Product[]
-  master  Master[]
+  productLevels ProductLevel[]
+  master        Master[]
 
   createdAt DateTime @default(now())
 }
@@ -154,16 +157,28 @@ model Product {
   isActive        Boolean @default(true)
   minWorkingHours Int
   priceHourly     Float
-  priceDaily      Float
+  priceDaily      Int
 
-  levelId String?
-  Level   Level?  @relation(fields: [levelId], references: [id])
+  productLevels ProductLevel[]
 
   toolProduct   ToolProduct[]
   masterProduct MasterProduct[]
   orderProduct  OrderProduct[]
 
   createdAt DateTime @default(now())
+}
+
+model ProductLevel {
+  id        String @id @default(uuid())
+  productId String
+  levelId   String
+
+  product Product @relation(fields: [productId], references: [id])
+  level   Level   @relation(fields: [levelId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([productId, levelId])
 }
 
 model Master {
@@ -175,7 +190,7 @@ model Master {
   minWorkingHours Int
   priceHourly     Float
   priceDaily      Float
-  experience      String
+  experience      Int
   image           String
   passportImage   String
   star            Float
@@ -184,10 +199,10 @@ model Master {
   levelId String?
   Level   Level?  @relation(fields: [levelId], references: [id])
 
-  toolMaster    ToolMaster[]
   masterProduct MasterProduct[]
   orderMaster   OrderMaster[]
   comment       Comment[]
+  masterStart   MasterStart[]
 
   createdAt DateTime @default(now())
 }
@@ -216,11 +231,11 @@ model Order {
 }
 
 model Comment {
-  id      String  @id @default(uuid())
+  id      String @id @default(uuid())
   message String
   star    Float
 
-  orderId String?
+  orderId  String?
   Order    Order?  @relation(fields: [orderId], references: [id])
   userId   String?
   User     User?   @relation(fields: [userId], references: [id])
@@ -238,16 +253,6 @@ model ToolProduct {
   Product Product @relation(fields: [productId], references: [id])
 
   @@id([toolId, productId])
-}
-
-model ToolMaster {
-  toolId   String
-  masterId String
-
-  Tool   Tool   @relation(fields: [toolId], references: [id])
-  Master Master @relation(fields: [masterId], references: [id])
-
-  @@id([toolId, masterId])
 }
 
 model MasterProduct {
@@ -334,4 +339,14 @@ model Partner {
   image String
 
   createdAt DateTime @default(now())
+}
+
+model MasterStart {
+  id        String   @id @default(uuid())
+  star      Float
+  createdAt DateTime @default(now())
+  User      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+  Master    Master?  @relation(fields: [masterId], references: [id])
+  masterId  String?
 }

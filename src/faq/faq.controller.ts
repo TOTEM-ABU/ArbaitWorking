@@ -7,22 +7,33 @@ import {
   Param,
   Delete,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { FaqService } from './faq.service';
 import { CreateFaqDto } from './dto/create-faq.dto';
 import { UpdateFaqDto } from './dto/update-faq.dto';
 import { ApiTags, ApiQuery } from '@nestjs/swagger';
+import { Roles } from 'src/user/decorators/roles.decorators';
+import { RoleStatus } from '@prisma/client';
+import { RoleGuard } from 'src/role/role.guard';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @ApiTags('FAQ')
 @Controller('faq')
 export class FaqController {
   constructor(private readonly faqService: FaqService) {}
 
+  @Roles(RoleStatus.ADMIN)
+  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard)
   @Post()
   create(@Body() createFaqDto: CreateFaqDto) {
     return this.faqService.create(createFaqDto);
   }
 
+  @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
+  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard)
   @Get()
   @ApiQuery({ name: 'question', required: false, type: String })
   @ApiQuery({ name: 'answer', required: false, type: String })
@@ -45,16 +56,25 @@ export class FaqController {
     });
   }
 
+  @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
+  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.faqService.findOne(id);
   }
 
+  @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
+  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateFaqDto: UpdateFaqDto) {
     return this.faqService.update(id, updateFaqDto);
   }
 
+  @Roles(RoleStatus.ADMIN)
+  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.faqService.remove(id);
