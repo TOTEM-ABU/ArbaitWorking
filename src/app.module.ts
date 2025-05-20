@@ -23,6 +23,7 @@ import { MailModule } from './mail/mail.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { MulterController } from './multer/multer.controller';
 
 @Module({
   imports: [
@@ -55,7 +56,7 @@ import { join } from 'path';
       serveRoot: '/uploads',
     }),
   ],
-  controllers: [AppController],
+  controllers: [AppController, MulterController],
   providers: [AppService],
 })
 export class AppModule {}
