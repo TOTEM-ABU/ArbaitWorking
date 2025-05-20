@@ -75,24 +75,45 @@ model Session {
 }
 
 model Brand {
-  id        String   @id @default(uuid())
-  name      String
-  tool      Tool[]
-  createdAt DateTime @default(now())
+  id    String      @id @default(uuid())
+  name  String
+  tools ToolBrand[]
 }
 
 model Size {
-  id        String   @id @default(uuid())
-  name      String
-  tool      Tool[]
-  createdAt DateTime @default(now())
+  id    String     @id @default(uuid())
+  name  String
+  tools ToolSize[]
 }
 
 model Capacity {
-  id        String   @id @default(uuid())
-  name      String
-  tool      Tool[]
-  createdAt DateTime @default(now())
+  id    String         @id @default(uuid())
+  name  String
+  tools ToolCapacity[]
+}
+
+model ToolBrand {
+  id      String @id @default(uuid())
+  tool    Tool   @relation(fields: [toolId], references: [id], onDelete: Cascade)
+  toolId  String
+  brand   Brand  @relation(fields: [brandId], references: [id])
+  brandId String
+}
+
+model ToolSize {
+  id     String @id @default(uuid())
+  tool   Tool   @relation(fields: [toolId], references: [id], onDelete: Cascade)
+  toolId String
+  size   Size   @relation(fields: [sizeId], references: [id])
+  sizeId String
+}
+
+model ToolCapacity {
+  id         String   @id @default(uuid())
+  tool       Tool     @relation(fields: [toolId], references: [id], onDelete: Cascade)
+  toolId     String
+  capacity   Capacity @relation(fields: [capacityId], references: [id])
+  capacityId String
 }
 
 model Tool {
@@ -101,20 +122,17 @@ model Tool {
   decription String
   price      Int
   quantity   Int
-  code       String
+  code       String  @unique
   image      String
   isActive   Boolean @default(true)
-
-  Brand      Brand?    @relation(fields: [brandId], references: [id])
-  brandId    String?
-  Size       Size?     @relation(fields: [sizeId], references: [id])
-  sizeId     String?
-  Capacity   Capacity? @relation(fields: [capacityId], references: [id])
-  capacityId String?
 
   toolProduct ToolProduct[]
   toolMaster  ToolMaster[]
   orderTools  OrderTool[]
+
+  ToolBrand    ToolBrand[]
+  ToolSize     ToolSize[]
+  ToolCapacity ToolCapacity[]
 
   createdAt DateTime @default(now())
 }
@@ -201,8 +219,8 @@ model Comment {
   id      String  @id @default(uuid())
   message String
   star    Float
-  orderId String?
 
+  orderId String?
   Order    Order?  @relation(fields: [orderId], references: [id])
   userId   String?
   User     User?   @relation(fields: [userId], references: [id])

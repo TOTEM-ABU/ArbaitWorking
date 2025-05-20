@@ -22,9 +22,9 @@ import { RoleStatus } from '@prisma/client';
 export class SizeController {
   constructor(private readonly sizeService: SizeService) {}
 
-  @Roles(RoleStatus.ADMIN)
-  @UseGuards(RoleGuard)
-  @UseGuards(AuthGuard)
+  // @Roles(RoleStatus.ADMIN)
+  // @UseGuards(RoleGuard)
+  // @UseGuards(AuthGuard)
   @Post()
   create(@Body() data: CreateSizeDto) {
     return this.sizeService.create(data);
@@ -64,17 +64,17 @@ export class SizeController {
     return this.sizeService.findOne(id);
   }
 
-  @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
-  @UseGuards(RoleGuard)
-  @UseGuards(AuthGuard)
+  // @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
+  // @UseGuards(RoleGuard)
+  // @UseGuards(AuthGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() data: UpdateSizeDto) {
     return this.sizeService.update(id, data);
   }
 
-  @Roles(RoleStatus.ADMIN)
-  @UseGuards(RoleGuard)
-  @UseGuards(AuthGuard)
+  // @Roles(RoleStatus.ADMIN)
+  // @UseGuards(RoleGuard)
+  // @UseGuards(AuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.sizeService.remove(id);

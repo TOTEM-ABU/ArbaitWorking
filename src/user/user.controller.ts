@@ -18,6 +18,11 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { Request } from 'express';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { CreateYurDto } from './dto/create-yur.dto';
+import { RoleGuard } from 'src/role/role.guard';
+import { Roles } from './decorators/roles.decorators';
+import { RoleStatus } from '@prisma/client';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { ResendOtpDto } from './dto/resend-otp.dto';
 
 @Controller('users')
 export class UserController {
@@ -28,9 +33,14 @@ export class UserController {
     return this.userService.registerYuridik(dto);
   }
 
-  @Post('registerUser')
+  @Post('registerFizik')
   async register(@Body() dto: CreateUserDto) {
     return this.userService.register(dto);
+  }
+
+  @Post('resend-otp')
+  async resendOtp(@Body() dto: ResendOtpDto) {
+    return this.userService.resendOtp(dto);
   }
 
   @Post('verify-otp')
@@ -58,6 +68,14 @@ export class UserController {
   @Patch('promoteToAdmin/:id')
   async promoteToAdmin(@Req() req: Request) {
     return this.userService.promoteToAdmin(req['user']);
+  }
+
+  @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
+  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard)
+  @Patch('update/:id')
+  async update(@Param('id') id: string, @Body() dto: UpdateUserDto) {
+    return this.userService.updateUser(id, dto);
   }
 
   @Delete(':id')

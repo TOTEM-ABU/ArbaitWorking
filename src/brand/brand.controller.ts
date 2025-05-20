@@ -22,9 +22,9 @@ import { RoleStatus } from '@prisma/client';
 export class BrandController {
   constructor(private readonly brandService: BrandService) {}
 
-  @Roles(RoleStatus.ADMIN)
-  @UseGuards(RoleGuard)
-  @UseGuards(AuthGuard)
+  // @Roles(RoleStatus.ADMIN)
+  // @UseGuards(RoleGuard)
+  // @UseGuards(AuthGuard)
   @Post()
   create(@Body() data: CreateBrandDto) {
     return this.brandService.create(data);
@@ -64,17 +64,17 @@ export class BrandController {
     return this.brandService.findOne(id);
   }
 
-  @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
-  @UseGuards(RoleGuard)
-  @UseGuards(AuthGuard)
+  // @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
+  // @UseGuards(RoleGuard)
+  // @UseGuards(AuthGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() data: UpdateBrandDto) {
     return this.brandService.update(id, data);
   }
 
-  @Roles(RoleStatus.ADMIN)
-  @UseGuards(RoleGuard)
-  @UseGuards(AuthGuard)
+  // @Roles(RoleStatus.ADMIN)
+  // @UseGuards(RoleGuard)
+  // @UseGuards(AuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.brandService.remove(id);

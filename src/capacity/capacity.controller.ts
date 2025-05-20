@@ -22,9 +22,9 @@ import { RoleStatus } from '@prisma/client';
 export class CapacityController {
   constructor(private readonly capacityService: CapacityService) {}
 
-  @Roles(RoleStatus.ADMIN)
-  @UseGuards(RoleGuard)
-  @UseGuards(AuthGuard)
+  // @Roles(RoleStatus.ADMIN)
+  // @UseGuards(RoleGuard)
+  // @UseGuards(AuthGuard)
   @Post()
   create(@Body() data: CreateCapacityDto) {
     return this.capacityService.create(data);
@@ -64,17 +64,17 @@ export class CapacityController {
     return this.capacityService.findOne(id);
   }
 
-  @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
-  @UseGuards(RoleGuard)
-  @UseGuards(AuthGuard)
+  // @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
+  // @UseGuards(RoleGuard)
+  // @UseGuards(AuthGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() data: UpdateCapacityDto) {
     return this.capacityService.update(id, data);
   }
 
-  @Roles(RoleStatus.ADMIN)
-  @UseGuards(RoleGuard)
-  @UseGuards(AuthGuard)
+  // @Roles(RoleStatus.ADMIN)
+  // @UseGuards(RoleGuard)
+  // @UseGuards(AuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.capacityService.remove(id);

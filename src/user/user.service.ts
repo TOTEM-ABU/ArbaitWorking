@@ -15,6 +15,8 @@ import { Request } from 'express';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { CreateYurDto } from './dto/create-yur.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { ResendOtpDto } from './dto/resend-otp.dto';
 
 @Injectable()
 export class UserService {
@@ -234,6 +236,42 @@ export class UserService {
     }
   }
 
+  async resendOtp(data: ResendOtpDto) {
+    try {
+      const { email } = data;
+
+      const user = await this.prisma.user.findFirst({ where: { email } });
+
+      if (!user) throw new NotFoundException('User not found!');
+
+      if (user.isVerified) return { message: 'User already verified' };
+
+      const otp = this.generateOTP();
+      const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000);
+
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: {
+          otp,
+          otpExpiresAt,
+        },
+      });
+
+      await this.mailer.sendMail(
+        data.email,
+        'Your OTP Code',
+        `Your OTP code is: ${otp}\n\nIt will expire in 5 minutes.`,
+      );
+
+      return { message: 'OTP resent successfully!' };
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Failed to resend OTP');
+    }
+  }
+
   async login(data: LoginUserDto, request: Request) {
     try {
       const user = await this.prisma.user.findFirst({
@@ -391,6 +429,18 @@ export class UserService {
         throw error;
       }
       throw new InternalServerErrorException('Failed to promote user to ADMIN');
+    }
+  }
+
+  async updateUser(id: string, data: UpdateUserDto) {
+    try {
+      const user = await this.prisma.user.update({ where: { id }, data });
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+      return user;
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to update user');
     }
   }
 

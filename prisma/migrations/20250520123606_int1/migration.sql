@@ -24,6 +24,12 @@ CREATE TABLE "User" (
     "password" TEXT NOT NULL,
     "phoneNumber" TEXT NOT NULL,
     "district" TEXT NOT NULL,
+    "soliqRaqami" TEXT,
+    "bankKodi" TEXT,
+    "hisobRaqami" TEXT,
+    "bankNomi" TEXT,
+    "faoliyatTuri" TEXT,
+    "bankAddress" TEXT,
     "otp" TEXT,
     "role" "RoleStatus" NOT NULL,
     "regionId" TEXT,
@@ -53,7 +59,6 @@ CREATE TABLE "Session" (
 CREATE TABLE "Brand" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Brand_pkey" PRIMARY KEY ("id")
 );
@@ -62,7 +67,6 @@ CREATE TABLE "Brand" (
 CREATE TABLE "Size" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Size_pkey" PRIMARY KEY ("id")
 );
@@ -71,9 +75,35 @@ CREATE TABLE "Size" (
 CREATE TABLE "Capacity" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Capacity_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ToolBrand" (
+    "id" TEXT NOT NULL,
+    "toolId" TEXT NOT NULL,
+    "brandId" TEXT NOT NULL,
+
+    CONSTRAINT "ToolBrand_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ToolSize" (
+    "id" TEXT NOT NULL,
+    "toolId" TEXT NOT NULL,
+    "sizeId" TEXT NOT NULL,
+
+    CONSTRAINT "ToolSize_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ToolCapacity" (
+    "id" TEXT NOT NULL,
+    "toolId" TEXT NOT NULL,
+    "capacityId" TEXT NOT NULL,
+
+    CONSTRAINT "ToolCapacity_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -86,9 +116,6 @@ CREATE TABLE "Tool" (
     "code" TEXT NOT NULL,
     "image" TEXT NOT NULL,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
-    "brandId" TEXT,
-    "sizeId" TEXT,
-    "capacityId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Tool_pkey" PRIMARY KEY ("id")
@@ -291,6 +318,9 @@ CREATE UNIQUE INDEX "User_phoneNumber_key" ON "User"("phoneNumber");
 CREATE UNIQUE INDEX "Session_token_key" ON "Session"("token");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Tool_code_key" ON "Tool"("code");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Master_phone_key" ON "Master"("phone");
 
 -- AddForeignKey
@@ -300,13 +330,22 @@ ALTER TABLE "User" ADD CONSTRAINT "User_regionId_fkey" FOREIGN KEY ("regionId") 
 ALTER TABLE "Session" ADD CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Tool" ADD CONSTRAINT "Tool_brandId_fkey" FOREIGN KEY ("brandId") REFERENCES "Brand"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "ToolBrand" ADD CONSTRAINT "ToolBrand_toolId_fkey" FOREIGN KEY ("toolId") REFERENCES "Tool"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Tool" ADD CONSTRAINT "Tool_sizeId_fkey" FOREIGN KEY ("sizeId") REFERENCES "Size"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "ToolBrand" ADD CONSTRAINT "ToolBrand_brandId_fkey" FOREIGN KEY ("brandId") REFERENCES "Brand"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Tool" ADD CONSTRAINT "Tool_capacityId_fkey" FOREIGN KEY ("capacityId") REFERENCES "Capacity"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "ToolSize" ADD CONSTRAINT "ToolSize_toolId_fkey" FOREIGN KEY ("toolId") REFERENCES "Tool"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ToolSize" ADD CONSTRAINT "ToolSize_sizeId_fkey" FOREIGN KEY ("sizeId") REFERENCES "Size"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ToolCapacity" ADD CONSTRAINT "ToolCapacity_toolId_fkey" FOREIGN KEY ("toolId") REFERENCES "Tool"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ToolCapacity" ADD CONSTRAINT "ToolCapacity_capacityId_fkey" FOREIGN KEY ("capacityId") REFERENCES "Capacity"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Product" ADD CONSTRAINT "Product_levelId_fkey" FOREIGN KEY ("levelId") REFERENCES "Level"("id") ON DELETE SET NULL ON UPDATE CASCADE;

@@ -32,7 +32,7 @@ export class CreateYurDto {
   @IsString()
   district: string;
 
-  @ApiProperty({ enum: RoleStatus })
+  @ApiProperty({ enum: RoleStatus, example: 'USER_YUR' })
   @IsEnum(RoleStatus)
   role: RoleStatus;
 
