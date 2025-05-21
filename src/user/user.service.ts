@@ -17,6 +17,8 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { CreateYurDto } from './dto/create-yur.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ResendOtpDto } from './dto/resend-otp.dto';
+import { AddAdminDto } from './dto/addAdmin.dto';
+import { Email } from 'nestjs-telegraf';
 
 @Injectable()
 export class UserService {
@@ -43,7 +45,9 @@ export class UserService {
 
   async findAll() {
     try {
-      const users = await this.prisma.user.findMany();
+      const users = await this.prisma.user.findMany({
+        include: { Region: true },
+      });
       return users;
     } catch (error) {
       throw new InternalServerErrorException('Failed to fetch users');
@@ -52,7 +56,10 @@ export class UserService {
 
   async findOne(id: string) {
     try {
-      const user = await this.prisma.user.findFirst({ where: { id } });
+      const user = await this.prisma.user.findFirst({
+        where: { id },
+        include: { Region: true },
+      });
       if (!user) {
         throw new NotFoundException('User not found');
       }
@@ -186,9 +193,55 @@ export class UserService {
     }
   }
 
+  async addAdmin(data: AddAdminDto) {
+    try {
+      const existingUser = await this.prisma.user.findFirst({
+        where: { email: data.email },
+      });
+
+      if (data.role !== 'ADMIN') {
+        throw new BadRequestException('Only ADMIN role is allowed!');
+      }
+
+      if (existingUser) {
+        throw new BadRequestException('User already exists!');
+      }
+
+      const hash = bcrypt.hashSync(data.password, 10);
+      const otp = this.generateOTP();
+      const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000);
+      const newUser = await this.prisma.user.create({
+        data: {
+          ...data,
+          password: hash,
+          otp,
+          otpExpiresAt,
+        },
+      });
+
+      try {
+        await this.mailer.sendMail(
+          data.email,
+          'Your OTP Code',
+          `Your OTP code is: ${otp}\n\nIt will expire in 5 minutes.`,
+        );
+        console.log('OTP sent to: ', data.email);
+      } catch (mailError) {
+        console.error('Failed to send OTP: ', mailError);
+        await this.prisma.user.delete({ where: { id: newUser.id } });
+        throw new InternalServerErrorException('Failed to send OTP');
+      }
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to add admin');
+    }
+  }
+
   async me(id: string) {
     try {
-      let userMe = await this.prisma.user.findFirst({ where: { id: id } });
+      let userMe = await this.prisma.user.findFirst({
+        where: { id: id },
+        include: { Region: true },
+      });
       return userMe;
     } catch (error) {
       return error;
@@ -398,37 +451,6 @@ export class UserService {
         throw error;
       }
       throw new InternalServerErrorException('Failed to refresh access token');
-    }
-  }
-
-  async promoteToAdmin(id: string) {
-    try {
-      const user = await this.prisma.user.findUnique({
-        where: { id },
-      });
-
-      if (!user) {
-        throw new NotFoundException('User not found');
-      }
-
-      if (user.role === 'ADMIN') {
-        return { message: 'User is already an ADMIN', user };
-      }
-
-      const updatedUser = await this.prisma.user.update({
-        where: { id },
-        data: { role: 'ADMIN' },
-      });
-
-      return {
-        message: 'User successfully promoted to ADMIN',
-        user: updatedUser,
-      };
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      throw new InternalServerErrorException('Failed to promote user to ADMIN');
     }
   }
 

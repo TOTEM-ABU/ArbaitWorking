@@ -59,7 +59,7 @@ model User {
   session     Session[]
   order       Order[]
   comment     Comment[]
-  masterStart MasterStart[]
+  masterStart MasterStar[]
 
   createdAt DateTime @default(now())
 }
@@ -97,7 +97,7 @@ model ToolBrand {
   id      String @id @default(uuid())
   tool    Tool   @relation(fields: [toolId], references: [id], onDelete: Cascade)
   toolId  String
-  brand   Brand  @relation(fields: [brandId], references: [id])
+  brand   Brand  @relation(fields: [brandId], references: [id], onDelete: Cascade)
   brandId String
 }
 
@@ -105,7 +105,7 @@ model ToolSize {
   id     String @id @default(uuid())
   tool   Tool   @relation(fields: [toolId], references: [id], onDelete: Cascade)
   toolId String
-  size   Size   @relation(fields: [sizeId], references: [id])
+  size   Size   @relation(fields: [sizeId], references: [id], onDelete: Cascade)
   sizeId String
 }
 
@@ -113,7 +113,7 @@ model ToolCapacity {
   id         String   @id @default(uuid())
   tool       Tool     @relation(fields: [toolId], references: [id], onDelete: Cascade)
   toolId     String
-  capacity   Capacity @relation(fields: [capacityId], references: [id])
+  capacity   Capacity @relation(fields: [capacityId], references: [id], onDelete: Cascade)
   capacityId String
 }
 
@@ -145,7 +145,7 @@ model Level {
   priceDaily      Int
 
   productLevels ProductLevel[]
-  master        Master[]
+  masterLevels  MasterLevel[]
 
   createdAt DateTime @default(now())
 }
@@ -182,34 +182,30 @@ model ProductLevel {
 }
 
 model Master {
-  id              String  @id @default(uuid())
+  id              String   @id @default(uuid())
   name            String
-  phone           String  @unique
-  isActive        Boolean @default(true)
-  year            Int
+  phone           String   @unique
+  isActive        Boolean  @default(true)
+  year            DateTime
   minWorkingHours Int
   priceHourly     Float
   priceDaily      Float
   experience      Int
   image           String
   passportImage   String
-  star            Float
+  star            Float    @default(0)
   about           String
 
-  levelId String?
-  Level   Level?  @relation(fields: [levelId], references: [id])
-
   masterProduct MasterProduct[]
-  orderMaster   OrderMaster[]
-  comment       Comment[]
-  masterStart   MasterStart[]
+  masterStar    MasterStar[]
+  masterLevels  MasterLevel[]
 
   createdAt DateTime @default(now())
 }
 
 model Order {
   id                String      @id @default(uuid())
-  total             Float
+  total             Float       @default(0)
   lat               Float
   long              Float
   address           String
@@ -225,7 +221,6 @@ model Order {
   comment       Comment[]
   orderTools    OrderTool[]
   orderProducts OrderProduct[]
-  orderMasters  OrderMaster[]
 
   createdAt DateTime @default(now())
 }
@@ -233,14 +228,11 @@ model Order {
 model Comment {
   id      String @id @default(uuid())
   message String
-  star    Float
 
-  orderId  String?
-  Order    Order?  @relation(fields: [orderId], references: [id])
-  userId   String?
-  User     User?   @relation(fields: [userId], references: [id])
-  masterId String?
-  Master   Master? @relation(fields: [masterId], references: [id])
+  orderId String?
+  Order   Order?  @relation(fields: [orderId], references: [id])
+  userId  String?
+  User    User?   @relation(fields: [userId], references: [id])
 
   createdAt DateTime @default(now())
 }
@@ -255,11 +247,20 @@ model ToolProduct {
   @@id([toolId, productId])
 }
 
+model MasterLevel {
+  id       String @id @default(uuid())
+  masterId String
+  levelId  String
+
+  master Master @relation(fields: [masterId], references: [id], onDelete: Cascade)
+  level  Level  @relation(fields: [levelId], references: [id], onDelete: Cascade)
+}
+
 model MasterProduct {
   masterId  String
   productId String
-  Master    Master  @relation(fields: [masterId], references: [id])
-  Product   Product @relation(fields: [productId], references: [id])
+  Master    Master  @relation(fields: [masterId], references: [id], onDelete: Cascade)
+  Product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@id([masterId, productId])
 }
@@ -268,8 +269,8 @@ model OrderTool {
   orderId String
   toolId  String
   count   Int
-  Order   Order  @relation(fields: [orderId], references: [id])
-  Tool    Tool   @relation(fields: [toolId], references: [id])
+  Order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  Tool    Tool   @relation(fields: [toolId], references: [id], onDelete: Cascade)
 
   @@id([orderId, toolId])
 }
@@ -280,19 +281,10 @@ model OrderProduct {
   count     Int
   quantity  Int
   measure   String
-  Order     Order   @relation(fields: [orderId], references: [id])
-  Product   Product @relation(fields: [productId], references: [id])
+  Order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  Product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@id([orderId, productId])
-}
-
-model OrderMaster {
-  orderId  String
-  masterId String
-  Order    Order  @relation(fields: [orderId], references: [id])
-  Master   Master @relation(fields: [masterId], references: [id])
-
-  @@id([orderId, masterId])
 }
 
 model FAQ {
@@ -341,7 +333,7 @@ model Partner {
   createdAt DateTime @default(now())
 }
 
-model MasterStart {
+model MasterStar {
   id        String   @id @default(uuid())
   star      Float
   createdAt DateTime @default(now())

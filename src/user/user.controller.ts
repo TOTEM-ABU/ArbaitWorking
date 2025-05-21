@@ -23,6 +23,7 @@ import { Roles } from './decorators/roles.decorators';
 import { RoleStatus } from '@prisma/client';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ResendOtpDto } from './dto/resend-otp.dto';
+import { AddAdminDto } from './dto/addAdmin.dto';
 
 @Controller('users')
 export class UserController {
@@ -37,15 +38,15 @@ export class UserController {
   async register(@Body() dto: CreateUserDto) {
     return this.userService.register(dto);
   }
+  
+  @Post('verify-otp')
+  async verifyOtp(@Body() dto: VerifyOtpDto) {
+    return this.userService.verifyOtp(dto);
+  }
 
   @Post('resend-otp')
   async resendOtp(@Body() dto: ResendOtpDto) {
     return this.userService.resendOtp(dto);
-  }
-
-  @Post('verify-otp')
-  async verifyOtp(@Body() dto: VerifyOtpDto) {
-    return this.userService.verifyOtp(dto);
   }
 
   @Post('login')
@@ -58,16 +59,15 @@ export class UserController {
     return this.userService.refreshAccessToken(dto);
   }
 
+  @Post('add-admin')
+  async addAdmin(@Body() dto: AddAdminDto) {
+    return this.userService.addAdmin(dto);
+  }
+
   @UseGuards(AuthGuard)
   @Patch('update-password/:id')
   async updatePassword(@Req() req: Request, @Body() dto: UpdatePasswordDto) {
     return this.userService.updatePassword(req['user'], dto);
-  }
-
-  @UseGuards(AuthGuard)
-  @Patch('promoteToAdmin/:id')
-  async promoteToAdmin(@Req() req: Request) {
-    return this.userService.promoteToAdmin(req['user']);
   }
 
   @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)

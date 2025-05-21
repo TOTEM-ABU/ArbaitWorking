@@ -1,26 +1,132 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class CommentService {
-  create(createCommentDto: CreateCommentDto) {
-    return 'This action adds a new comment';
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(data: CreateCommentDto) {
+    try {
+      const comment = await this.prisma.comment.create({ data });
+      if (!comment) {
+        throw new InternalServerErrorException('Comment not created');
+      }
+      return comment;
+    } catch (error) {
+      throw new BadRequestException('Error creating comment');
+    }
   }
 
-  findAll() {
-    return `This action returns all comment`;
+  async findAll(query: {
+    orderId?: string;
+    sort?: 'asc' | 'desc';
+    page?: number;
+    limit?: number;
+  }) {
+    const { orderId, sort = 'desc', page = 1, limit = 10 } = query;
+
+    const where: any = {};
+    if (orderId) {
+      where.orderId = orderId;
+    }
+
+    const [comments, total] = await this.prisma.$transaction([
+      this.prisma.comment.findMany({
+        where,
+        include: {
+          Order: {
+            include: {
+              orderTools: {
+                include: {
+                  Tool: true,
+                },
+              },
+              orderProducts: {
+                include: {
+                  Product: true,
+                },
+              },
+            },
+          },
+        },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      this.prisma.comment.count({ where }),
+    ]);
+
+    return {
+      data: comments,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} comment`;
+  async findOne(id: string) {
+    try {
+      const comment = await this.prisma.comment.findUnique({
+        where: { id },
+        include: {
+          Order: {
+            include: {
+              orderTools: {
+                include: {
+                  Tool: true,
+                },
+              },
+              orderProducts: {
+                include: {
+                  Product: true,
+                },
+              },
+            },
+          },
+        },
+      });
+      if (!comment) {
+        throw new NotFoundException('Comment not found');
+      }
+      return comment;
+    } catch (error) {
+      throw new InternalServerErrorException('Error get comment');
+    }
   }
 
-  update(id: number, updateCommentDto: UpdateCommentDto) {
-    return `This action updates a #${id} comment`;
+  async update(id: string, data: UpdateCommentDto) {
+    try {
+      const comment = await this.prisma.comment.update({
+        where: { id },
+        data,
+      });
+      if (!comment) {
+        throw new NotFoundException('Comment not found');
+      }
+      return comment;
+    } catch (error) {
+      throw new InternalServerErrorException('Error updating comment');
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} comment`;
+  async remove(id: string) {
+    try {
+      const comment = await this.prisma.comment.delete({
+        where: { id },
+      });
+      if (!comment) {
+        throw new NotFoundException('Comment not found');
+      }
+      return comment;
+    } catch (error) {
+      throw new InternalServerErrorException('Error deleting comment');
+    }
   }
 }
