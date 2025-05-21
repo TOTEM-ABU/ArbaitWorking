@@ -40,6 +40,12 @@ export class ContactController {
   @ApiQuery({ name: 'phone', required: false, type: String })
   @ApiQuery({ name: 'address', required: false, type: String })
   @ApiQuery({ name: 'message', required: false, type: String })
+  @ApiQuery({
+    name: 'sortBy',
+    required: false,
+    enum: ['name', 'createdAt'],
+    example: 'createdAt',
+  })
   @ApiQuery({ name: 'sort', required: false, enum: ['asc', 'desc'] })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
@@ -49,6 +55,7 @@ export class ContactController {
     @Query('phone') phone?: string,
     @Query('address') address?: string,
     @Query('message') message?: string,
+    @Query('sortBy') sortBy?: 'name' | 'createdAt',
     @Query('sort') sort?: 'asc' | 'desc',
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
@@ -59,6 +66,7 @@ export class ContactController {
       phone,
       address,
       message,
+      sortBy,
       sort,
       page,
       limit,

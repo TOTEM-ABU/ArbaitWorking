@@ -252,14 +252,6 @@ CREATE TABLE "OrderProduct" (
 );
 
 -- CreateTable
-CREATE TABLE "OrderMaster" (
-    "orderId" TEXT NOT NULL,
-    "masterId" TEXT NOT NULL,
-
-    CONSTRAINT "OrderMaster_pkey" PRIMARY KEY ("orderId","masterId")
-);
-
--- CreateTable
 CREATE TABLE "FAQ" (
     "id" TEXT NOT NULL,
     "question" TEXT NOT NULL,
@@ -415,12 +407,6 @@ ALTER TABLE "OrderProduct" ADD CONSTRAINT "OrderProduct_orderId_fkey" FOREIGN KE
 
 -- AddForeignKey
 ALTER TABLE "OrderProduct" ADD CONSTRAINT "OrderProduct_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "OrderMaster" ADD CONSTRAINT "OrderMaster_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "OrderMaster" ADD CONSTRAINT "OrderMaster_masterId_fkey" FOREIGN KEY ("masterId") REFERENCES "Master"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "MasterStar" ADD CONSTRAINT "MasterStar_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;

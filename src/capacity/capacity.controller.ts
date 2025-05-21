@@ -34,32 +34,24 @@ export class CapacityController {
   @UseGuards(RoleGuard)
   @UseGuards(AuthGuard)
   @Get()
+  @ApiQuery({ name: 'search', required: false })
+  @ApiQuery({ name: 'sort', required: false, enum: ['asc', 'desc'] })
   @ApiQuery({
-    name: 'search',
+    name: 'sortBy',
     required: false,
+    enum: ['name'],
+    example: 'name',
   })
-  @ApiQuery({
-    name: 'sort',
-    required: false,
-    enum: ['asc', 'desc'],
-  })
-  @ApiQuery({
-    name: 'page',
-    required: false,
-    type: Number,
-  })
-  @ApiQuery({
-    name: 'limit',
-    required: false,
-    type: Number,
-  })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
   findAll(
     @Query('search') search?: string,
     @Query('sort') sort?: 'asc' | 'desc',
+    @Query('sortBy') sortBy?: 'name',
     @Query('page') page?: number,
     @Query('limit') limit?: number,
   ) {
-    return this.capacityService.findAll({ search, sort, page, limit });
+    return this.capacityService.findAll({ search, sort, sortBy, page, limit });
   }
 
   @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)

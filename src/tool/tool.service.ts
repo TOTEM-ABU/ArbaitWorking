@@ -73,7 +73,7 @@ export class ToolService {
     brandId?: string;
     sizeId?: string;
     capacityId?: string;
-    sortBy?: 'name' | 'price' | 'createdAt';
+    sortBy?: 'name' | 'price' | 'createdAt' | 'quantity'; // ✅ quantity qo‘shildi
     sortOrder?: 'asc' | 'desc';
     page?: number;
     limit?: number;
@@ -99,7 +99,7 @@ export class ToolService {
       }
 
       if (description) {
-        where.decription = { contains: description, mode: 'insensitive' };
+        where.description = { contains: description, mode: 'insensitive' }; // ✏️ typo: 'decription' -> 'description'
       }
 
       if (typeof price === 'number') {

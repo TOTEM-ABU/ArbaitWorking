@@ -26,6 +26,7 @@ export class ContactService {
     phone?: string;
     address?: string;
     message?: string;
+    sortBy?: 'name' | 'createdAt';
     sort?: 'asc' | 'desc';
     page?: number;
     limit?: number;
@@ -37,6 +38,7 @@ export class ContactService {
         phone = '',
         address = '',
         message = '',
+        sortBy = 'createdAt', // default sortBy createdAt
         sort = 'asc',
         page = 1,
         limit = 10,
@@ -52,7 +54,7 @@ export class ContactService {
 
       const contacts = await this.prisma.contact.findMany({
         where,
-        orderBy: { name: sort },
+        orderBy: { [sortBy]: sort },
         skip: (page - 1) * limit,
         take: limit,
       });

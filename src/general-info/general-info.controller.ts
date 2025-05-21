@@ -38,7 +38,12 @@ export class GeneralInfoController {
   @ApiQuery({ name: 'email', required: false, type: String })
   @ApiQuery({ name: 'phones', required: false, type: String })
   @ApiQuery({ name: 'links', required: false, type: String })
-  @ApiQuery({ name: 'sort', required: false, enum: ['asc', 'desc'] })
+  @ApiQuery({
+    name: 'sort',
+    required: false,
+    enum: ['asc', 'desc'],
+    example: 'asc',
+  })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   findAll(

@@ -19,6 +19,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { ResendOtpDto } from './dto/resend-otp.dto';
 import { AddAdminDto } from './dto/addAdmin.dto';
 import { Email } from 'nestjs-telegraf';
+import { RoleStatus } from '@prisma/client';
 
 @Injectable()
 export class UserService {
@@ -43,12 +44,58 @@ export class UserService {
     }
   }
 
-  async findAll() {
+  async findAll(query: any) {
+    const {
+      name,
+      email,
+      phoneNumber,
+      role,
+      regionId,
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+      page = 1,
+      limit = 10,
+    } = query;
+
+    const skip = (page - 1) * limit;
+
     try {
       const users = await this.prisma.user.findMany({
+        where: {
+          name: name ? { contains: name, mode: 'insensitive' } : undefined,
+          email: email ? { contains: email, mode: 'insensitive' } : undefined,
+          phoneNumber: phoneNumber
+            ? { contains: phoneNumber, mode: 'insensitive' }
+            : undefined,
+          role: role ? role : undefined,
+          regionId: regionId ? regionId : undefined,
+        },
         include: { Region: true },
+        orderBy: {
+          [sortBy]: sortOrder,
+        },
+        skip: Number(skip),
+        take: Number(limit),
       });
-      return users;
+
+      const total = await this.prisma.user.count({
+        where: {
+          name: name ? { contains: name, mode: 'insensitive' } : undefined,
+          email: email ? { contains: email, mode: 'insensitive' } : undefined,
+          phoneNumber: phoneNumber
+            ? { contains: phoneNumber, mode: 'insensitive' }
+            : undefined,
+          role: role ? role : undefined,
+          regionId: regionId ? regionId : undefined,
+        },
+      });
+
+      return {
+        data: users,
+        total,
+        page: Number(page),
+        limit: Number(limit),
+      };
     } catch (error) {
       throw new InternalServerErrorException('Failed to fetch users');
     }
@@ -225,7 +272,7 @@ export class UserService {
           'Your OTP Code',
           `Your OTP code is: ${otp}\n\nIt will expire in 5 minutes.`,
         );
-        console.log('OTP sent to: ', data.email);
+        return newUser;
       } catch (mailError) {
         console.error('Failed to send OTP: ', mailError);
         await this.prisma.user.delete({ where: { id: newUser.id } });

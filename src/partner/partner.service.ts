@@ -19,11 +19,18 @@ export class PartnerService {
   async findAll(query: {
     name?: string;
     sort?: 'asc' | 'desc';
+    sortBy?: 'name' | 'createdAt'; // yangi sortBy
     page?: number;
     limit?: number;
   }) {
     try {
-      const { name = '', sort = 'asc', page = 1, limit = 10 } = query;
+      const {
+        name = '',
+        sort = 'asc',
+        sortBy = 'name', // default name bo'yicha saralash
+        page = 1,
+        limit = 10,
+      } = query;
 
       const where: Prisma.PartnerWhereInput = {
         name: {
@@ -34,7 +41,7 @@ export class PartnerService {
 
       const partners = await this.prisma.partner.findMany({
         where,
-        orderBy: { name: sort },
+        orderBy: { [sortBy]: sort }, // dinamik sortBy qo'llash
         skip: (page - 1) * limit,
         take: limit,
       });

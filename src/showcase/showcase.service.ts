@@ -25,6 +25,7 @@ export class ShowcaseService {
     name?: string;
     description?: string;
     sort?: 'asc' | 'desc';
+    sortBy?: 'name' | 'createdAt';
     page?: number;
     limit?: number;
   }) {
@@ -33,6 +34,7 @@ export class ShowcaseService {
         name = '',
         description = '',
         sort = 'asc',
+        sortBy = 'name',
         page = 1,
         limit = 10,
       } = query;
@@ -50,7 +52,7 @@ export class ShowcaseService {
 
       const showcases = await this.prisma.showcase.findMany({
         where,
-        orderBy: { name: sort },
+        orderBy: { [sortBy]: sort },
         skip: (page - 1) * limit,
         take: limit,
       });

@@ -30,26 +30,33 @@ export class LevelController {
     return this.levelService.create(createLevelDto);
   }
 
-  @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
-  @UseGuards(RoleGuard)
-  @UseGuards(AuthGuard)
   @Get()
   @ApiQuery({ name: 'name', required: false })
+  @ApiQuery({
+    name: 'sortBy',
+    required: false,
+    enum: ['name', 'minWorkingHours', 'priceHourly', 'priceDaily'],
+  })
   @ApiQuery({ name: 'sort', required: false, enum: ['asc', 'desc'] })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   findAll(
     @Query('name') name?: string,
-    @Query('sort') sort?: 'asc' | 'desc',
+    @Query('sortBy')
+    sortBy: 'name' | 'minWorkingHours' | 'priceHourly' | 'priceDaily' = 'name',
+    @Query('sort') sort: 'asc' | 'desc' = 'asc',
     @Query('page') page = 1,
     @Query('limit') limit = 10,
   ) {
-    return this.levelService.findAll({ name, sort, page, limit });
+    return this.levelService.findAll({
+      name,
+      sortBy,
+      sort,
+      page,
+      limit,
+    });
   }
 
-  @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
-  @UseGuards(RoleGuard)
-  @UseGuards(AuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.levelService.findOne(id);

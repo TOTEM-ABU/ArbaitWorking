@@ -63,7 +63,8 @@ export class ProductService {
         minWorkingHours,
         toolId,
         levelId,
-        sort,
+        sortBy = 'name',
+        sort = 'asc',
         page = '1',
         limit = '10',
       } = query;
@@ -94,8 +95,6 @@ export class ProductService {
         }),
       };
 
-      const [sortField, sortOrder] = sort?.split(':') ?? ['name', 'asc'];
-
       const skip = (Number(page) - 1) * Number(limit);
       const take = Number(limit);
 
@@ -103,7 +102,7 @@ export class ProductService {
         this.prisma.product.findMany({
           where,
           orderBy: {
-            [sortField]: sortOrder,
+            [sortBy]: sort,
           },
           skip,
           take,
@@ -139,6 +138,7 @@ export class ProductService {
         },
       };
     } catch (error) {
+      console.error(error);
       throw new InternalServerErrorException('Productlarni olishda xatolik');
     }
   }

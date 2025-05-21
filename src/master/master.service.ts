@@ -2,6 +2,7 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CreateMasterDto } from './dto/create-master.dto';
 import { UpdateMasterDto } from './dto/update-master.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { MarkStarDto } from './dto/markstart-dto';
 
 @Injectable()
 export class MasterService {
@@ -23,7 +24,7 @@ export class MasterService {
             about: data.about,
           },
         });
-        
+
         if (data.masterLevel?.length) {
           await tx.masterLevel.createMany({
             data: data.masterLevel.map((level) => ({
@@ -61,7 +62,6 @@ export class MasterService {
       priceDaily,
       experience,
       levelId,
-      toolId,
       productId,
       sortBy = 'createdAt',
       sortOrder = 'desc',
@@ -128,7 +128,7 @@ export class MasterService {
 
   async findOne(id: string) {
     try {
-      let master = await this.prisma.master.findFirst({
+      const master = await this.prisma.master.findFirst({
         where: { id },
         include: {
           masterLevels: {
@@ -147,11 +147,26 @@ export class MasterService {
       if (!master) {
         throw new InternalServerErrorException('Bunday master topilmadi');
       }
-      return master;
+
+      const stars = await this.prisma.masterStar.findMany({
+        where: { masterId: id },
+        select: { star: true },
+      });
+
+      const avgStar =
+        stars.length > 0
+          ? stars.reduce((sum, s) => sum + s.star, 0) / stars.length
+          : null;
+
+      return {
+        ...master,
+        avgStar,
+      };
     } catch (error) {
       throw new InternalServerErrorException('Masterni olishda xatolik');
     }
   }
+
   async update(id: string, data: UpdateMasterDto) {
     try {
       const result = await this.prisma.$transaction(async (tx) => {
@@ -170,7 +185,7 @@ export class MasterService {
             about: data.about,
           },
         });
-        
+
         if (data.masterLevel?.length) {
           await tx.masterLevel.deleteMany({
             where: { masterId: id },
@@ -200,6 +215,43 @@ export class MasterService {
       });
     } catch (error) {
       throw new InternalServerErrorException('Masterni yangilashda xatolik');
+    }
+  }
+
+  async markStarForMaster(data: MarkStarDto, userId: string) {
+    const { masterId, star } = data;
+
+    try {
+      const master = await this.prisma.masterStar.create({
+        data: {
+          masterId,
+          userId,
+          star,
+        },
+      });
+
+      if (!master) {
+        throw new InternalServerErrorException('Masterni baholashda xatolik');
+      }
+
+      const allStars = await this.prisma.masterStar.findMany({
+        where: { masterId },
+        select: { star: true },
+      });
+
+      const avgStar =
+        allStars.reduce((sum, s) => sum + s.star, 0) / allStars.length;
+
+      await this.prisma.master.update({
+        where: { id: masterId },
+        data: { star: avgStar },
+      });
+
+      return { message: 'Baholash muvaffaqiyatli', masterStar: master };
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Masterni yulduz bilan baholashda xatolik',
+      );
     }
   }
 

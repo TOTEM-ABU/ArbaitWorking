@@ -8,6 +8,7 @@ import {
   Delete,
   Req,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -24,6 +25,7 @@ import { RoleStatus } from '@prisma/client';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ResendOtpDto } from './dto/resend-otp.dto';
 import { AddAdminDto } from './dto/addAdmin.dto';
+import { ApiQuery } from '@nestjs/swagger';
 
 @Controller('users')
 export class UserController {
@@ -38,7 +40,7 @@ export class UserController {
   async register(@Body() dto: CreateUserDto) {
     return this.userService.register(dto);
   }
-  
+
   @Post('verify-otp')
   async verifyOtp(@Body() dto: VerifyOtpDto) {
     return this.userService.verifyOtp(dto);
@@ -84,8 +86,47 @@ export class UserController {
   }
 
   @Get()
-  async findAll() {
-    return this.userService.findAll();
+  @ApiQuery({ name: 'name', required: false })
+  @ApiQuery({ name: 'email', required: false })
+  @ApiQuery({ name: 'phoneNumber', required: false })
+  @ApiQuery({ name: 'role', enum: RoleStatus, required: false })
+  @ApiQuery({ name: 'regionId', required: false })
+  @ApiQuery({
+    name: 'sortBy',
+    required: false,
+    enum: ['createdAt', 'name'],
+    example: 'createdAt',
+  })
+  @ApiQuery({
+    name: 'sortOrder',
+    required: false,
+    enum: ['asc', 'desc'],
+    example: 'desc',
+  })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  async findAll(
+    @Query('name') name?: string,
+    @Query('email') email?: string,
+    @Query('phoneNumber') phoneNumber?: string,
+    @Query('role') role?: RoleStatus,
+    @Query('regionId') regionId?: string,
+    @Query('sortBy') sortBy: string = 'createdAt',
+    @Query('sortOrder') sortOrder: 'asc' | 'desc' = 'desc',
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ) {
+    return this.userService.findAll({
+      name,
+      email,
+      phoneNumber,
+      role,
+      regionId,
+      sortBy,
+      sortOrder,
+      page,
+      limit,
+    });
   }
 
   @Get(':id')

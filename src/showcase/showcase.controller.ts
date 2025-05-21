@@ -38,12 +38,19 @@ export class ShowcaseController {
   @ApiQuery({ name: 'name', required: false, type: String })
   @ApiQuery({ name: 'description', required: false, type: String })
   @ApiQuery({ name: 'sort', required: false, enum: ['asc', 'desc'] })
+  @ApiQuery({
+    name: 'sortBy',
+    required: false,
+    enum: ['name', 'createdAt'],
+    description: 'Sort by field',
+  })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   findAll(
     @Query('name') name?: string,
     @Query('description') description?: string,
     @Query('sort') sort?: 'asc' | 'desc',
+    @Query('sortBy') sortBy?: 'name' | 'createdAt',
     @Query('page') page = 1,
     @Query('limit') limit = 10,
   ) {
@@ -51,6 +58,7 @@ export class ShowcaseController {
       name,
       description,
       sort,
+      sortBy,
       page,
       limit,
     });

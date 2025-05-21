@@ -8,6 +8,7 @@ import {
   Delete,
   Query,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { MasterService } from './master.service';
 import { CreateMasterDto } from './dto/create-master.dto';
@@ -17,19 +18,23 @@ import { Roles } from 'src/user/decorators/roles.decorators';
 import { RoleStatus } from '@prisma/client';
 import { RoleGuard } from 'src/role/role.guard';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { MarkStarDto } from './dto/markstart-dto';
 
 @Controller('master')
 export class MasterController {
   constructor(private readonly masterService: MasterService) {}
 
-  // @Roles(RoleStatus.ADMIN)
-  // @UseGuards(RoleGuard)
-  // @UseGuards(AuthGuard)
+  @Roles(RoleStatus.ADMIN)
+  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard)
   @Post()
   create(@Body() createMasterDto: CreateMasterDto) {
     return this.masterService.create(createMasterDto);
   }
 
+  @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN, RoleStatus.VIEWER_ADMIN)
+  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard)
   @Get()
   @ApiQuery({ name: 'name', required: false })
   @ApiQuery({ name: 'phone', required: false })
@@ -41,7 +46,19 @@ export class MasterController {
   @ApiQuery({ name: 'experience', required: false, type: Number })
   @ApiQuery({ name: 'levelId', required: false })
   @ApiQuery({ name: 'productId', required: false })
-  @ApiQuery({ name: 'sortBy', required: false, example: 'createdAt' })
+  @ApiQuery({
+    name: 'sortBy',
+    required: false,
+    enum: [
+      'name',
+      'minWorkingHours',
+      'priceHourly',
+      'priceDaily',
+      'experience',
+      'createdAt',
+    ],
+    example: 'createdAt',
+  })
   @ApiQuery({ name: 'sortOrder', required: false, enum: ['asc', 'desc'] })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
@@ -55,9 +72,15 @@ export class MasterController {
     @Query('priceDaily') priceDaily?: number,
     @Query('experience') experience?: number,
     @Query('levelId') levelId?: string,
-    @Query('toolId') toolId?: string,
     @Query('productId') productId?: string,
-    @Query('sortBy') sortBy = 'createdAt',
+    @Query('sortBy')
+    sortBy:
+      | 'name'
+      | 'minWorkingHours'
+      | 'priceHourly'
+      | 'priceDaily'
+      | 'experience'
+      | 'createdAt' = 'createdAt',
     @Query('sortOrder') sortOrder: 'asc' | 'desc' = 'desc',
     @Query('page') page = 1,
     @Query('limit') limit = 10,
@@ -72,7 +95,6 @@ export class MasterController {
       priceDaily,
       experience,
       levelId,
-      toolId,
       productId,
       sortBy,
       sortOrder,
@@ -81,9 +103,19 @@ export class MasterController {
     });
   }
 
+  @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN, RoleStatus.VIEWER_ADMIN)
+  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.masterService.findOne(id);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('star')
+  async markStar(@Body() dto: MarkStarDto, @Req() req: any) {
+    const userId = req.user.id;
+    return this.masterService.markStarForMaster(dto, userId);
   }
 
   @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)

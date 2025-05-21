@@ -30,9 +30,9 @@ export class ToolController {
     return this.toolService.create(createToolDto);
   }
 
-  // @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
-  // @UseGuards(RoleGuard)
-  // @UseGuards(AuthGuard)
+  @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN, RoleStatus.VIEWER_ADMIN)
+  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard)
   @Get()
   @ApiQuery({ name: 'name', required: false })
   @ApiQuery({ name: 'description', required: false })
@@ -43,7 +43,7 @@ export class ToolController {
   @ApiQuery({
     name: 'sortBy',
     required: false,
-    enum: ['name', 'price', 'createdAt'],
+    enum: ['name', 'price', 'createdAt', 'quantity'],
   })
   @ApiQuery({ name: 'sortOrder', required: false, enum: ['asc', 'desc'] })
   @ApiQuery({ name: 'page', required: false, type: Number })
@@ -55,7 +55,8 @@ export class ToolController {
     @Query('brandId') brandId?: string,
     @Query('sizeId') sizeId?: string,
     @Query('capacityId') capacityId?: string,
-    @Query('sortBy') sortBy: 'name' | 'price' | 'createdAt' = 'createdAt',
+    @Query('sortBy')
+    sortBy: 'name' | 'price' | 'createdAt' | 'quantity' = 'createdAt',
     @Query('sortOrder') sortOrder: 'asc' | 'desc' = 'desc',
     @Query('page') page = 1,
     @Query('limit') limit = 10,
@@ -74,9 +75,9 @@ export class ToolController {
     });
   }
 
-  // @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
-  // @UseGuards(RoleGuard)
-  // @UseGuards(AuthGuard)
+  @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN, RoleStatus.VIEWER_ADMIN)
+  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.toolService.findOne(id);

@@ -12,7 +12,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class CommentService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: CreateCommentDto) {
+  async create(data: CreateCommentDto & { userId: string }) {
     try {
       const comment = await this.prisma.comment.create({ data });
       if (!comment) {
@@ -26,11 +26,18 @@ export class CommentService {
 
   async findAll(query: {
     orderId?: string;
+    sortBy?: string;
     sort?: 'asc' | 'desc';
     page?: number;
     limit?: number;
   }) {
-    const { orderId, sort = 'desc', page = 1, limit = 10 } = query;
+    const {
+      orderId,
+      sortBy = 'createdAt',
+      sort = 'desc',
+      page = 1,
+      limit = 10,
+    } = query;
 
     const where: any = {};
     if (orderId) {
@@ -55,6 +62,9 @@ export class CommentService {
               },
             },
           },
+        },
+        orderBy: {
+          [sortBy]: sort,
         },
         skip: (page - 1) * limit,
         take: limit,
@@ -98,6 +108,20 @@ export class CommentService {
       return comment;
     } catch (error) {
       throw new InternalServerErrorException('Error get comment');
+    }
+  }
+
+  async myComments(userId: string) {
+    try {
+      const myComments = await this.prisma.comment.findFirst({
+        where: { userId },
+      });
+      if (!myComments) {
+        throw new NotFoundException('No comments found for this user');
+      }
+      return myComments;
+    } catch (error) {
+      throw new InternalServerErrorException('Error get my comments');
     }
   }
 

@@ -25,12 +25,19 @@ export class LevelService {
 
   async findAll(query: {
     name?: string;
+    sortBy?: 'name' | 'minWorkingHours' | 'priceHourly' | 'priceDaily'; 
     sort?: 'asc' | 'desc';
     page?: number;
     limit?: number;
   }) {
     try {
-      const { name, sort = 'asc', page = 1, limit = 10 } = query;
+      const {
+        name,
+        sortBy = 'name',
+        sort = 'asc',
+        page = 1,
+        limit = 10,
+      } = query;
 
       const where: any = {};
 
@@ -41,7 +48,7 @@ export class LevelService {
       const levels = await this.prisma.level.findMany({
         where,
         orderBy: {
-          name: sort,
+          [sortBy]: sort,
         },
         skip: (page - 1) * limit,
         take: limit,

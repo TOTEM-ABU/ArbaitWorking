@@ -59,7 +59,7 @@ model User {
   session     Session[]
   order       Order[]
   comment     Comment[]
-  masterStart MasterStar[]
+  masterStar MasterStar[]
 
   createdAt DateTime @default(now())
 }

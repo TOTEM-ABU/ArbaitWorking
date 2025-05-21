@@ -46,7 +46,7 @@ export class GeneralInfoService {
 
       const items = await this.prisma.generalInfo.findMany({
         where,
-        orderBy: { email: sort },
+        orderBy: { createdAt: sort }, // faqat createdAt bo'yicha saralash
         skip: (page - 1) * limit,
         take: limit,
       });

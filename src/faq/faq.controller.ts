@@ -37,12 +37,14 @@ export class FaqController {
   @Get()
   @ApiQuery({ name: 'question', required: false, type: String })
   @ApiQuery({ name: 'answer', required: false, type: String })
+  @ApiQuery({ name: 'sortBy', required: false, example: 'createdAt' })
   @ApiQuery({ name: 'sort', required: false, enum: ['asc', 'desc'] })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   findAll(
     @Query('question') question?: string,
     @Query('answer') answer?: string,
+    @Query('sortBy') sortBy?: string,
     @Query('sort') sort?: 'asc' | 'desc',
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
@@ -50,6 +52,7 @@ export class FaqController {
     return this.faqService.findAll({
       question,
       answer,
+      sortBy,
       sort,
       page,
       limit,

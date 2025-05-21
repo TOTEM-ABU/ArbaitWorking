@@ -27,11 +27,21 @@ export class RegionService {
   async findAll(query: {
     search?: string;
     sort?: 'asc' | 'desc';
+    sortBy?: string;
     page?: number;
     limit?: number;
   }) {
     try {
-      const { search = '', sort = 'asc', page = 1, limit = 10 } = query;
+      const {
+        search = '',
+        sort = 'asc',
+        sortBy = 'name',
+        page = 1,
+        limit = 10,
+      } = query;
+
+      const take = Number(limit);
+      const skip = (Number(page) - 1) * take;
 
       const regions = await this.prisma.region.findMany({
         where: {
@@ -41,10 +51,10 @@ export class RegionService {
           },
         },
         orderBy: {
-          name: sort,
+          [sortBy]: sort,
         },
-        skip: (page - 1) * limit,
-        take: limit,
+        skip,
+        take,
       });
 
       const total = await this.prisma.region.count({
@@ -60,9 +70,9 @@ export class RegionService {
         data: regions,
         meta: {
           total,
-          page,
-          limit,
-          lastPage: Math.ceil(total / limit),
+          page: Number(page),
+          limit: take,
+          lastPage: Math.ceil(total / take),
         },
       };
     } catch (error) {

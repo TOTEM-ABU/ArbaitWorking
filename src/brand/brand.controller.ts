@@ -34,32 +34,30 @@ export class BrandController {
   @UseGuards(RoleGuard)
   @UseGuards(AuthGuard)
   @Get()
+  @ApiQuery({ name: 'search', required: false })
+  @ApiQuery({ name: 'sort', required: false, enum: ['asc', 'desc'] })
   @ApiQuery({
-    name: 'search',
+    name: 'sortBy',
     required: false,
+    enum: ['name'],
+    example: 'name',
   })
-  @ApiQuery({
-    name: 'sort',
-    required: false,
-    enum: ['asc', 'desc'],
-  })
-  @ApiQuery({
-    name: 'page',
-    required: false,
-    type: Number,
-  })
-  @ApiQuery({
-    name: 'limit',
-    required: false,
-    type: Number,
-  })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
   findAll(
     @Query('search') search?: string,
     @Query('sort') sort?: 'asc' | 'desc',
-    @Query('page') page?: number,
-    @Query('limit') limit?: number,
+    @Query('sortBy') sortBy?: 'name',
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
   ) {
-    return this.brandService.findAll({ search, sort, page, limit });
+    return this.brandService.findAll({
+      search,
+      sort,
+      sortBy,
+      page: page ? parseInt(page, 10) : 1,
+      limit: limit ? parseInt(limit, 10) : 10,
+    });
   }
 
   @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)

@@ -31,32 +31,30 @@ export class RegionController {
   }
 
   @Get()
+  @ApiQuery({ name: 'search', required: false })
+  @ApiQuery({ name: 'sort', required: false, enum: ['asc', 'desc'] })
   @ApiQuery({
-    name: 'search',
+    name: 'sortBy',
     required: false,
+    enum: ['name'],
+    example: 'name',
   })
-  @ApiQuery({
-    name: 'sort',
-    required: false,
-    enum: ['asc', 'desc'],
-  })
-  @ApiQuery({
-    name: 'page',
-    required: false,
-    type: Number,
-  })
-  @ApiQuery({
-    name: 'limit',
-    required: false,
-    type: Number,
-  })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
   findAll(
     @Query('search') search?: string,
     @Query('sort') sort?: 'asc' | 'desc',
-    @Query('page') page?: number,
-    @Query('limit') limit?: number,
+    @Query('sortBy') sortBy?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
   ) {
-    return this.regionService.findAll({ search, sort, page, limit });
+    return this.regionService.findAll({
+      search,
+      sort,
+      sortBy,
+      page: page ? parseInt(page, 10) : 1,
+      limit: limit ? parseInt(limit, 10) : 10,
+    });
   }
 
   @Get(':id')

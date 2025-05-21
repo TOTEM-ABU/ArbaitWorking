@@ -27,11 +27,21 @@ export class BrandService {
   async findAll(query: {
     search?: string;
     sort?: 'asc' | 'desc';
+    sortBy?: 'name';
     page?: number;
     limit?: number;
   }) {
     try {
-      const { search = '', sort = 'asc', page = 1, limit = 10 } = query;
+      const {
+        search = '',
+        sort = 'asc',
+        sortBy = 'name',
+        page = 1,
+        limit = 10,
+      } = query;
+
+      const take = Number(limit);
+      const skip = (Number(page) - 1) * take;
 
       const brands = await this.prisma.brand.findMany({
         where: {
@@ -41,10 +51,10 @@ export class BrandService {
           },
         },
         orderBy: {
-          name: sort,
+          [sortBy]: sort,
         },
-        skip: (page - 1) * limit,
-        take: limit,
+        skip,
+        take,
       });
 
       const total = await this.prisma.brand.count({
@@ -60,9 +70,9 @@ export class BrandService {
         data: brands,
         meta: {
           total,
-          page,
-          limit,
-          lastPage: Math.ceil(total / limit),
+          page: Number(page),
+          limit: take,
+          lastPage: Math.ceil(total / take),
         },
       };
     } catch (error) {

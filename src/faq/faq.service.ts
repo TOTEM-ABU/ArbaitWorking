@@ -27,6 +27,7 @@ export class FaqService {
   async findAll(query: {
     question?: string;
     answer?: string;
+    sortBy?: string;
     sort?: 'asc' | 'desc';
     page?: number;
     limit?: number;
@@ -35,6 +36,7 @@ export class FaqService {
       const {
         question = '',
         answer = '',
+        sortBy = 'createdAt',
         sort = 'asc',
         page = 1,
         limit = 10,
@@ -47,7 +49,7 @@ export class FaqService {
 
       const faqs = await this.prisma.fAQ.findMany({
         where,
-        orderBy: { question: sort },
+        orderBy: { [sortBy]: sort },
         skip: (page - 1) * limit,
         take: limit,
       });
