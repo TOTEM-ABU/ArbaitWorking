@@ -5,6 +5,9 @@ CREATE TYPE "RoleStatus" AS ENUM ('ADMIN', 'USER_FIZ', 'USER_YUR', 'SUPER_ADMIN'
 CREATE TYPE "paymentType" AS ENUM ('CASH', 'CARD');
 
 -- CreateEnum
+CREATE TYPE "measure" AS ENUM ('HOUR', 'DAY');
+
+-- CreateEnum
 CREATE TYPE "statusType" AS ENUM ('PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED');
 
 -- CreateTable
@@ -59,6 +62,7 @@ CREATE TABLE "Session" (
 CREATE TABLE "Brand" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Brand_pkey" PRIMARY KEY ("id")
 );
@@ -67,6 +71,7 @@ CREATE TABLE "Brand" (
 CREATE TABLE "Size" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Size_pkey" PRIMARY KEY ("id")
 );
@@ -75,6 +80,7 @@ CREATE TABLE "Size" (
 CREATE TABLE "Capacity" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Capacity_pkey" PRIMARY KEY ("id")
 );
@@ -139,6 +145,7 @@ CREATE TABLE "Product" (
     "name" TEXT NOT NULL,
     "image" TEXT NOT NULL,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "quantity" INTEGER NOT NULL,
     "minWorkingHours" INTEGER NOT NULL,
     "priceHourly" DOUBLE PRECISION NOT NULL,
     "priceDaily" INTEGER NOT NULL,
@@ -232,6 +239,15 @@ CREATE TABLE "MasterProduct" (
 );
 
 -- CreateTable
+CREATE TABLE "OrderMaster" (
+    "id" TEXT NOT NULL,
+    "orderId" TEXT NOT NULL,
+    "masterId" TEXT NOT NULL,
+
+    CONSTRAINT "OrderMaster_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "OrderTool" (
     "orderId" TEXT NOT NULL,
     "toolId" TEXT NOT NULL,
@@ -241,12 +257,25 @@ CREATE TABLE "OrderTool" (
 );
 
 -- CreateTable
+CREATE TABLE "OrderProductTool" (
+    "id" TEXT NOT NULL,
+    "orderId" TEXT NOT NULL,
+    "productId" TEXT NOT NULL,
+    "toolId" TEXT NOT NULL,
+    "count" INTEGER NOT NULL,
+
+    CONSTRAINT "OrderProductTool_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "OrderProduct" (
     "orderId" TEXT NOT NULL,
     "productId" TEXT NOT NULL,
     "count" INTEGER NOT NULL,
+    "measure" "measure" NOT NULL,
     "quantity" INTEGER NOT NULL,
-    "measure" TEXT NOT NULL,
+    "price" DOUBLE PRECISION NOT NULL,
+    "levelId" TEXT,
 
     CONSTRAINT "OrderProduct_pkey" PRIMARY KEY ("orderId","productId")
 );
@@ -311,12 +340,15 @@ CREATE TABLE "Partner" (
 CREATE TABLE "MasterStar" (
     "id" TEXT NOT NULL,
     "star" DOUBLE PRECISION NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "userId" TEXT,
     "masterId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "MasterStar_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Region_name_key" ON "Region"("name");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
@@ -328,16 +360,49 @@ CREATE UNIQUE INDEX "User_password_key" ON "User"("password");
 CREATE UNIQUE INDEX "User_phoneNumber_key" ON "User"("phoneNumber");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Session_ipAddress_key" ON "Session"("ipAddress");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Session_token_key" ON "Session"("token");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Brand_name_key" ON "Brand"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Size_name_key" ON "Size"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Capacity_name_key" ON "Capacity"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Tool_name_key" ON "Tool"("name");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Tool_code_key" ON "Tool"("code");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Level_name_key" ON "Level"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Product_name_key" ON "Product"("name");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "ProductLevel_productId_levelId_key" ON "ProductLevel"("productId", "levelId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Master_phone_key" ON "Master"("phone");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Contact_phone_key" ON "Contact"("phone");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "GeneralInfo_email_key" ON "GeneralInfo"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Showcase_name_key" ON "Showcase"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Partner_name_key" ON "Partner"("name");
 
 -- AddForeignKey
 ALTER TABLE "User" ADD CONSTRAINT "User_regionId_fkey" FOREIGN KEY ("regionId") REFERENCES "Region"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -397,16 +462,31 @@ ALTER TABLE "MasterProduct" ADD CONSTRAINT "MasterProduct_masterId_fkey" FOREIGN
 ALTER TABLE "MasterProduct" ADD CONSTRAINT "MasterProduct_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "OrderMaster" ADD CONSTRAINT "OrderMaster_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "OrderMaster" ADD CONSTRAINT "OrderMaster_masterId_fkey" FOREIGN KEY ("masterId") REFERENCES "Master"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "OrderTool" ADD CONSTRAINT "OrderTool_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "OrderTool" ADD CONSTRAINT "OrderTool_toolId_fkey" FOREIGN KEY ("toolId") REFERENCES "Tool"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "OrderProductTool" ADD CONSTRAINT "OrderProductTool_orderId_productId_fkey" FOREIGN KEY ("orderId", "productId") REFERENCES "OrderProduct"("orderId", "productId") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "OrderProductTool" ADD CONSTRAINT "OrderProductTool_toolId_fkey" FOREIGN KEY ("toolId") REFERENCES "Tool"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "OrderProduct" ADD CONSTRAINT "OrderProduct_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "OrderProduct" ADD CONSTRAINT "OrderProduct_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "OrderProduct" ADD CONSTRAINT "OrderProduct_levelId_fkey" FOREIGN KEY ("levelId") REFERENCES "Level"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "MasterStar" ADD CONSTRAINT "MasterStar_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;

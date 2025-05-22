@@ -13,8 +13,20 @@ export class ContactService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: CreateContactDto) {
+    const existingContact = await this.prisma.contact.findFirst({
+      where: {
+        phone: data.phone,
+      },
+    });
+
+    if (!existingContact) {
+      throw new BadRequestException('Bu telefon contact mavjud');
+    }
+
     try {
-      return await this.prisma.contact.create({ data });
+      const contact = await this.prisma.contact.create({ data });
+
+      return contact;
     } catch (error) {
       throw new BadRequestException('Contact yaratishda xatolik yuz berdi');
     }
@@ -78,9 +90,11 @@ export class ContactService {
   async findOne(id: string) {
     try {
       const contact = await this.prisma.contact.findUnique({ where: { id } });
+
       if (!contact) {
         throw new HttpException('Contact topilmadi', HttpStatus.NOT_FOUND);
       }
+
       return contact;
     } catch (error) {
       throw new BadRequestException(
@@ -90,19 +104,41 @@ export class ContactService {
   }
 
   async update(id: string, data: UpdateContactDto) {
+    const existingContact = await this.prisma.contact.findUnique({
+      where: { id },
+    });
+
+    if (!existingContact) {
+      throw new HttpException('Contact topilmadi', HttpStatus.NOT_FOUND);
+    }
+
     try {
-      return await this.prisma.contact.update({
+      const updatedContact = await this.prisma.contact.update({
         where: { id },
         data,
       });
+
+      return updatedContact;
     } catch (error) {
       throw new BadRequestException('Contactni yangilashda xatolik yuz berdi');
     }
   }
 
   async remove(id: string) {
+    const existingContact = await this.prisma.contact.findUnique({
+      where: { id },
+    });
+
+    if (!existingContact) {
+      throw new HttpException('Contact topilmadi', HttpStatus.NOT_FOUND);
+    }
+
     try {
-      return await this.prisma.contact.delete({ where: { id } });
+      const updatedContact = await this.prisma.contact.delete({
+        where: { id },
+      });
+
+      return updatedContact;
     } catch (error) {
       throw new BadRequestException('Contactni o‘chirishda xatolik yuz berdi');
     }

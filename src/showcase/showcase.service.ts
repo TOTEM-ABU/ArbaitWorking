@@ -14,6 +14,14 @@ export class ShowcaseService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: CreateShowcaseDto) {
+    const existingShowcase = await this.prisma.showcase.findFirst({
+      where: { name: data.name },
+    });
+
+    if (existingShowcase) {
+      throw new BadRequestException('Bu nomli showcase allaqachon mavjud');
+    }
+
     try {
       return await this.prisma.showcase.create({ data });
     } catch (error) {
@@ -74,11 +82,16 @@ export class ShowcaseService {
   }
 
   async findOne(id: string) {
+    const existingShowcase = await this.prisma.showcase.findUnique({
+      where: { id },
+    });
+
+    if (!existingShowcase) {
+      throw new BadRequestException('Bunday showcase topilmadi');
+    }
+
     try {
       const showcase = await this.prisma.showcase.findUnique({ where: { id } });
-      if (!showcase) {
-        throw new HttpException('Showcase topilmadi', HttpStatus.NOT_FOUND);
-      }
       return showcase;
     } catch (error) {
       throw new HttpException(
@@ -89,6 +102,14 @@ export class ShowcaseService {
   }
 
   async update(id: string, data: UpdateShowcaseDto) {
+    const existingShowcase = await this.prisma.showcase.findUnique({
+      where: { id },
+    });
+
+    if (!existingShowcase) {
+      throw new BadRequestException('Bunday showcase topilmadi');
+    }
+
     try {
       return await this.prisma.showcase.update({
         where: { id },
@@ -100,6 +121,14 @@ export class ShowcaseService {
   }
 
   async remove(id: string) {
+    const existingShowcase = await this.prisma.showcase.findUnique({
+      where: { id },
+    });
+
+    if (!existingShowcase) {
+      throw new BadRequestException('Bunday showcase topilmadi');
+    }
+
     try {
       return await this.prisma.showcase.delete({
         where: { id },

@@ -8,6 +8,13 @@ export class PartnerService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: { name: string; image: string }) {
+    const existingPartner = await this.prisma.partner.findFirst({
+      where: { name: data.name },
+    });
+
+    if (existingPartner) {
+      throw new BadRequestException('Bu nomli partner allaqachon mavjud');
+    }
     try {
       const partner = await this.prisma.partner.create({ data });
       return partner;
@@ -63,11 +70,17 @@ export class PartnerService {
   }
 
   async findOne(id: string) {
+    const existingregion = await this.prisma.region.findUnique({
+      where: { id },
+    });
+
+    if (!existingregion) {
+      throw new BadRequestException('Bunday partner mavjud emas');
+    }
+
     try {
       const partner = await this.prisma.partner.findUnique({ where: { id } });
-      if (!partner) {
-        throw new BadRequestException('Partner topilmadi');
-      }
+
       return partner;
     } catch (error) {
       throw new BadRequestException('Partnerni olishda xatolik yuz berdi');
@@ -75,6 +88,14 @@ export class PartnerService {
   }
 
   async update(id: string, data: UpdatePartnerDto) {
+    const existingPartner = await this.prisma.partner.findUnique({
+      where: { id },
+    });
+
+    if (!existingPartner) {
+      throw new BadRequestException('Bunday partner mavjud emas');
+    }
+
     try {
       const updated = await this.prisma.partner.update({
         where: { id },
@@ -87,6 +108,14 @@ export class PartnerService {
   }
 
   async remove(id: string) {
+    const existingPartner = await this.prisma.partner.findUnique({
+      where: { id },
+    });
+
+    if (!existingPartner) {
+      throw new BadRequestException('Bunday partner mavjud emas');
+    }
+
     try {
       const deleted = await this.prisma.partner.delete({ where: { id } });
       return deleted;

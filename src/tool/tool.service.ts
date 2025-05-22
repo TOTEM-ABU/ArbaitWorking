@@ -12,6 +12,14 @@ export class ToolService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: CreateToolDto) {
+    const existingTool = await this.prisma.tool.findFirst({
+      where: { name: data.name },
+    });
+
+    if (existingTool) {
+      throw new BadRequestException('Bu nomli asbob allaqachon mavjud');
+    }
+
     try {
       const toolCount = await this.prisma.tool.count();
       const generatedCode = `TL-${(toolCount + 1).toString().padStart(5, '0')}`;
@@ -73,7 +81,7 @@ export class ToolService {
     brandId?: string;
     sizeId?: string;
     capacityId?: string;
-    sortBy?: 'name' | 'price' | 'createdAt' | 'quantity'; // ✅ quantity qo‘shildi
+    sortBy?: 'name' | 'price' | 'createdAt' | 'quantity'; 
     sortOrder?: 'asc' | 'desc';
     page?: number;
     limit?: number;
@@ -99,7 +107,7 @@ export class ToolService {
       }
 
       if (description) {
-        where.description = { contains: description, mode: 'insensitive' }; // ✏️ typo: 'decription' -> 'description'
+        where.description = { contains: description, mode: 'insensitive' }; 
       }
 
       if (typeof price === 'number') {
@@ -162,6 +170,14 @@ export class ToolService {
   }
 
   async findOne(id: string) {
+    const existingTool = await this.prisma.tool.findUnique({
+      where: { id },
+    });
+
+    if (!existingTool) {
+      throw new BadRequestException('Bunday asbob topilmadi');
+    }
+
     try {
       const tool = await this.prisma.tool.findUnique({
         where: { id },
@@ -184,6 +200,14 @@ export class ToolService {
   }
 
   async update(id: string, data: UpdateToolDto) {
+    const existingTool = await this.prisma.tool.findUnique({
+      where: { id },
+    });
+
+    if (!existingTool) {
+      throw new BadRequestException('Bunday asbob topilmadi');
+    }
+
     try {
       return await this.prisma.tool.update({
         where: { id },
@@ -201,6 +225,14 @@ export class ToolService {
   }
 
   async remove(id: string) {
+    const existingTool = await this.prisma.tool.findUnique({
+      where: { id },
+    });
+
+    if (!existingTool) {
+      throw new BadRequestException('Bunday asbob topilmadi');
+    }
+
     try {
       await this.prisma.tool.delete({
         where: { id },

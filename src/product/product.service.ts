@@ -13,12 +13,21 @@ export class ProductService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: CreateProductDto) {
+    const existingProduct = await this.prisma.product.findFirst({
+      where: { name: data.name },
+    });
+
+    if (existingProduct) {
+      throw new BadRequestException('Bu nomli product allaqachon mavjud');
+    }
+
     try {
       const result = await this.prisma.$transaction(async (tx) => {
         const product = await tx.product.create({
           data: {
             name: data.name,
             image: data.image,
+            quantity: data.quantity,
             minWorkingHours: data.minWorkingHours,
             priceHourly: data.priceHourly,
             priceDaily: data.priceDaily,

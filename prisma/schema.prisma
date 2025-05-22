@@ -20,6 +20,11 @@ enum paymentType {
   CARD
 }
 
+enum measure {
+  HOUR
+  DAY
+}
+
 enum statusType {
   PENDING
   IN_PROGRESS
@@ -29,7 +34,7 @@ enum statusType {
 
 model Region {
   id        String   @id @default(uuid())
-  name      String
+  name      String   @unique
   user      User[]
   createdAt DateTime @default(now())
 }
@@ -56,9 +61,9 @@ model User {
   deviceInfo   String?
   isVerified   Boolean    @default(false)
 
-  session     Session[]
-  order       Order[]
-  comment     Comment[]
+  session    Session[]
+  order      Order[]
+  comment    Comment[]
   masterStar MasterStar[]
 
   createdAt DateTime @default(now())
@@ -66,7 +71,7 @@ model User {
 
 model Session {
   id         String   @id @default(uuid())
-  ipAddress  String
+  ipAddress  String   @unique
   deviceInfo String
   token      String   @unique
   userId     String
@@ -76,50 +81,59 @@ model Session {
 }
 
 model Brand {
-  id    String      @id @default(uuid())
-  name  String
-  tools ToolBrand[]
+  id        String      @id @default(uuid())
+  name      String      @unique
+  tools     ToolBrand[]
+  createdAt DateTime    @default(now())
 }
 
 model Size {
-  id    String     @id @default(uuid())
-  name  String
-  tools ToolSize[]
+  id        String     @id @default(uuid())
+  name      String     @unique
+  tools     ToolSize[]
+  createdAt DateTime   @default(now())
 }
 
 model Capacity {
-  id    String         @id @default(uuid())
-  name  String
-  tools ToolCapacity[]
+  id        String         @id @default(uuid())
+  name      String         @unique
+  tools     ToolCapacity[]
+  createdAt DateTime       @default(now())
 }
 
 model ToolBrand {
-  id      String @id @default(uuid())
-  tool    Tool   @relation(fields: [toolId], references: [id], onDelete: Cascade)
+  id String @id @default(uuid())
+
   toolId  String
-  brand   Brand  @relation(fields: [brandId], references: [id], onDelete: Cascade)
   brandId String
+
+  tool  Tool  @relation(fields: [toolId], references: [id], onDelete: Cascade)
+  brand Brand @relation(fields: [brandId], references: [id], onDelete: Cascade)
 }
 
 model ToolSize {
-  id     String @id @default(uuid())
-  tool   Tool   @relation(fields: [toolId], references: [id], onDelete: Cascade)
+  id String @id @default(uuid())
+
   toolId String
-  size   Size   @relation(fields: [sizeId], references: [id], onDelete: Cascade)
   sizeId String
+
+  tool Tool @relation(fields: [toolId], references: [id], onDelete: Cascade)
+  size Size @relation(fields: [sizeId], references: [id], onDelete: Cascade)
 }
 
 model ToolCapacity {
-  id         String   @id @default(uuid())
-  tool       Tool     @relation(fields: [toolId], references: [id], onDelete: Cascade)
+  id String @id @default(uuid())
+
   toolId     String
-  capacity   Capacity @relation(fields: [capacityId], references: [id], onDelete: Cascade)
   capacityId String
+
+  tool     Tool     @relation(fields: [toolId], references: [id], onDelete: Cascade)
+  capacity Capacity @relation(fields: [capacityId], references: [id], onDelete: Cascade)
 }
 
 model Tool {
   id         String  @id @default(uuid())
-  name       String
+  name       String  @unique
   decription String
   price      Int
   quantity   Int
@@ -130,31 +144,34 @@ model Tool {
   toolProduct ToolProduct[]
   orderTools  OrderTool[]
 
-  ToolBrand    ToolBrand[]
-  ToolSize     ToolSize[]
-  ToolCapacity ToolCapacity[]
+  ToolBrand        ToolBrand[]
+  ToolSize         ToolSize[]
+  ToolCapacity     ToolCapacity[]
+  OrderProductTool OrderProductTool[]
 
   createdAt DateTime @default(now())
 }
 
 model Level {
   id              String @id @default(uuid())
-  name            String
+  name            String @unique
   minWorkingHours Int
   priceHourly     Float
   priceDaily      Int
 
   productLevels ProductLevel[]
   masterLevels  MasterLevel[]
+  orderProducts OrderProduct[]
 
   createdAt DateTime @default(now())
 }
 
 model Product {
   id              String  @id @default(uuid())
-  name            String
+  name            String  @unique
   image           String
   isActive        Boolean @default(true)
+  quantity        Int
   minWorkingHours Int
   priceHourly     Float
   priceDaily      Int
@@ -169,7 +186,8 @@ model Product {
 }
 
 model ProductLevel {
-  id        String @id @default(uuid())
+  id String @id @default(uuid())
+
   productId String
   levelId   String
 
@@ -192,13 +210,14 @@ model Master {
   priceDaily      Float
   experience      Int
   image           String
-  passportImage   String
+  passportImage   String   
   star            Float    @default(0)
   about           String
 
   masterProduct MasterProduct[]
   masterStar    MasterStar[]
   masterLevels  MasterLevel[]
+  OrderMaster   OrderMaster[]
 
   createdAt DateTime @default(now())
 }
@@ -221,8 +240,8 @@ model Order {
   comment       Comment[]
   orderTools    OrderTool[]
   orderProducts OrderProduct[]
-
-  createdAt DateTime @default(now())
+  masters       OrderMaster[]
+  createdAt     DateTime       @default(now())
 }
 
 model Comment {
@@ -230,9 +249,10 @@ model Comment {
   message String
 
   orderId String?
-  Order   Order?  @relation(fields: [orderId], references: [id])
   userId  String?
-  User    User?   @relation(fields: [userId], references: [id])
+
+  Order Order? @relation(fields: [orderId], references: [id])
+  User  User?  @relation(fields: [userId], references: [id])
 
   createdAt DateTime @default(now())
 }
@@ -248,7 +268,8 @@ model ToolProduct {
 }
 
 model MasterLevel {
-  id       String @id @default(uuid())
+  id String @id @default(uuid())
+
   masterId String
   levelId  String
 
@@ -259,36 +280,71 @@ model MasterLevel {
 model MasterProduct {
   masterId  String
   productId String
-  Master    Master  @relation(fields: [masterId], references: [id], onDelete: Cascade)
-  Product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  Master  Master  @relation(fields: [masterId], references: [id], onDelete: Cascade)
+  Product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@id([masterId, productId])
+}
+
+model OrderMaster {
+  id String @id @default(uuid())
+
+  orderId  String
+  masterId String
+
+  Order  Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  Master Master @relation(fields: [masterId], references: [id], onDelete: Cascade)
 }
 
 model OrderTool {
   orderId String
   toolId  String
-  count   Int
-  Order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  Tool    Tool   @relation(fields: [toolId], references: [id], onDelete: Cascade)
+
+  count Int
+
+  Order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  Tool  Tool  @relation(fields: [toolId], references: [id], onDelete: Cascade)
 
   @@id([orderId, toolId])
+}
+
+model OrderProductTool {
+  id String @id @default(uuid())
+
+  orderId   String
+  productId String
+  toolId    String
+
+  count Int
+
+  OrderProduct OrderProduct @relation(fields: [orderId, productId], references: [orderId, productId], onDelete: Cascade)
+  Tool         Tool         @relation(fields: [toolId], references: [id])
 }
 
 model OrderProduct {
   orderId   String
   productId String
-  count     Int
-  quantity  Int
-  measure   String
-  Order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  Product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  count    Int
+  measure  measure
+  quantity Int
+  price    Float
+
+  Order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  Product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  levelId String?
+  Level   Level?  @relation(fields: [levelId], references: [id])
+
+  tools OrderProductTool[]
 
   @@id([orderId, productId])
 }
 
 model FAQ {
-  id       String @id @default(uuid())
+  id String @id @default(uuid())
+
   question String
   answer   String
 
@@ -296,10 +352,11 @@ model FAQ {
 }
 
 model Contact {
-  id      String @id @default(uuid())
+  id String @id @default(uuid())
+
   name    String
   surName String
-  phone   String
+  phone   String @unique
   address String
   message String
 
@@ -307,8 +364,9 @@ model Contact {
 }
 
 model GeneralInfo {
-  id     String @id @default(uuid())
-  email  String
+  id String @id @default(uuid())
+
+  email  String @unique
   phones String
   links  String
 
@@ -316,8 +374,9 @@ model GeneralInfo {
 }
 
 model Showcase {
-  id          String @id @default(uuid())
-  name        String
+  id String @id @default(uuid())
+
+  name        String @unique
   description String
   image       String
   link        String
@@ -326,19 +385,24 @@ model Showcase {
 }
 
 model Partner {
-  id    String @id @default(uuid())
-  name  String
+  id String @id @default(uuid())
+
+  name  String @unique
   image String
 
   createdAt DateTime @default(now())
 }
 
 model MasterStar {
-  id        String   @id @default(uuid())
-  star      Float
-  createdAt DateTime @default(now())
-  User      User?    @relation(fields: [userId], references: [id])
-  userId    String?
+  id String @id @default(uuid())
+
+  star Float
+
+  userId   String?
+  masterId String?
+
+  User User? @relation(fields: [userId], references: [id])
+
   Master    Master?  @relation(fields: [masterId], references: [id])
-  masterId  String?
+  createdAt DateTime @default(now())
 }

@@ -41,6 +41,11 @@ export class UserController {
     return this.userService.register(dto);
   }
 
+  @Post('registerAdmin')
+  async addAdmin(@Body() dto: AddAdminDto) {
+    return this.userService.addAdmin(dto);
+  }
+
   @Post('verify-otp')
   async verifyOtp(@Body() dto: VerifyOtpDto) {
     return this.userService.verifyOtp(dto);
@@ -59,11 +64,6 @@ export class UserController {
   @Post('refresh-token')
   async refreshAccessToken(@Body() dto: RefreshTokenDto) {
     return this.userService.refreshAccessToken(dto);
-  }
-
-  @Post('add-admin')
-  async addAdmin(@Body() dto: AddAdminDto) {
-    return this.userService.addAdmin(dto);
   }
 
   @UseGuards(AuthGuard)

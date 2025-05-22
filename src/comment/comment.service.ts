@@ -16,7 +16,7 @@ export class CommentService {
     try {
       const comment = await this.prisma.comment.create({ data });
       if (!comment) {
-        throw new InternalServerErrorException('Comment not created');
+        throw new BadRequestException('Comment not created');
       }
       return comment;
     } catch (error) {
@@ -102,9 +102,11 @@ export class CommentService {
           },
         },
       });
+
       if (!comment) {
         throw new NotFoundException('Comment not found');
       }
+
       return comment;
     } catch (error) {
       throw new InternalServerErrorException('Error get comment');
@@ -116,9 +118,11 @@ export class CommentService {
       const myComments = await this.prisma.comment.findFirst({
         where: { userId },
       });
+
       if (!myComments) {
         throw new NotFoundException('No comments found for this user');
       }
+
       return myComments;
     } catch (error) {
       throw new InternalServerErrorException('Error get my comments');
@@ -131,9 +135,11 @@ export class CommentService {
         where: { id },
         data,
       });
+
       if (!comment) {
         throw new NotFoundException('Comment not found');
       }
+
       return comment;
     } catch (error) {
       throw new InternalServerErrorException('Error updating comment');
@@ -145,9 +151,11 @@ export class CommentService {
       const comment = await this.prisma.comment.delete({
         where: { id },
       });
+
       if (!comment) {
         throw new NotFoundException('Comment not found');
       }
+
       return comment;
     } catch (error) {
       throw new InternalServerErrorException('Error deleting comment');

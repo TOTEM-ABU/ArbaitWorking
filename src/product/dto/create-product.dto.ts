@@ -20,6 +20,10 @@ export class CreateProductDto {
 
   @ApiProperty({ example: 1000 })
   @IsNumber()
+  quantity: number;
+
+  @ApiProperty({ example: 1000 })
+  @IsNumber()
   priceDaily: number;
 
   @ApiProperty({ example: 1 })

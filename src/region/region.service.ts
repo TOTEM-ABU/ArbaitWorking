@@ -13,6 +13,14 @@ export class RegionService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: CreateRegionDto) {
+    const existingRegion = await this.prisma.region.findFirst({
+      where: { name: data.name },
+    });
+
+    if (existingRegion) {
+      throw new BadRequestException('Bu nomli region allaqachon mavjud');
+    }
+
     try {
       const region = await this.prisma.region.create({ data });
       return region;
@@ -81,14 +89,16 @@ export class RegionService {
   }
 
   async findOne(id: string) {
+    const exists = await this.prisma.region.findFirst({ where: { id } });
+
+    if (!exists) {
+      throw new HttpException('Region topilmadi', HttpStatus.NOT_FOUND);
+    }
+
     try {
       const region = await this.prisma.region.findUnique({
         where: { id },
       });
-
-      if (!region) {
-        throw new HttpException('Region topilmadi', HttpStatus.NOT_FOUND);
-      }
 
       return region;
     } catch (error) {
@@ -100,11 +110,17 @@ export class RegionService {
   }
 
   async update(id: string, data: UpdateRegionDto) {
+    const exists = await this.prisma.region.findFirst({ where: { id } });
+
+    if (!exists) {
+      throw new HttpException('Region topilmadi', HttpStatus.NOT_FOUND);
+    }
     try {
       const updated = await this.prisma.region.update({
         where: { id },
         data,
       });
+
       return updated;
     } catch (error) {
       throw new HttpException(
@@ -115,10 +131,16 @@ export class RegionService {
   }
 
   async remove(id: string) {
+    const exists = await this.prisma.region.findFirst({ where: { id } });
+
+    if (!exists) {
+      throw new HttpException('Region topilmadi', HttpStatus.NOT_FOUND);
+    }
     try {
       const deleted = await this.prisma.region.delete({
         where: { id },
       });
+
       return deleted;
     } catch (error) {
       throw new HttpException(

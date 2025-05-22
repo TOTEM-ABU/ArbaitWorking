@@ -7,6 +7,7 @@ import {
   IsPhoneNumber,
   IsString,
   IsUUID,
+  Length,
 } from 'class-validator';
 
 export class CreateYurDto {
@@ -21,6 +22,7 @@ export class CreateYurDto {
 
   @ApiProperty({ example: 'string1234' })
   @IsString()
+  @Length(2, 6)
   password: string;
 
   @ApiProperty({ example: '+998883334545' })

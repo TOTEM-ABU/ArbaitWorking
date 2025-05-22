@@ -7,7 +7,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()
-    .setTitle('MyWorkers with NestJs')
+    .setTitle('Arbait with NestJs')
     .setVersion('1.0')
     .addSecurityRequirements('bearer', ['bearer'])
     .addBearerAuth()
@@ -16,6 +16,6 @@ async function bootstrap() {
   SwaggerModule.setup('docs', app, documentFactory);
   app.useGlobalPipes(new ValidationPipe());
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(process.env.PORT ?? 9000);
 }
 bootstrap();

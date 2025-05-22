@@ -8,15 +8,18 @@ export class LevelService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: CreateLevelDto) {
+    const existingLevel = await this.prisma.level.findUnique({
+      where: { name: data.name },
+    });
+
+    if (existingLevel) {
+      throw new InternalServerErrorException('Level already exists');
+    }
+
     try {
       const level = await this.prisma.level.create({
         data,
       });
-
-      if (!level) {
-        throw new InternalServerErrorException('Level creation failed');
-      }
-
       return level;
     } catch (error) {
       throw new InternalServerErrorException('Failed to create level');
@@ -25,7 +28,7 @@ export class LevelService {
 
   async findAll(query: {
     name?: string;
-    sortBy?: 'name' | 'minWorkingHours' | 'priceHourly' | 'priceDaily'; 
+    sortBy?: 'name' | 'minWorkingHours' | 'priceHourly' | 'priceDaily';
     sort?: 'asc' | 'desc';
     page?: number;
     limit?: number;
@@ -74,9 +77,11 @@ export class LevelService {
       const level = await this.prisma.level.findUnique({
         where: { id },
       });
+
       if (!level) {
         throw new InternalServerErrorException('Level not found!');
       }
+
       return level;
     } catch (error) {
       throw new InternalServerErrorException('Failed to get one level');
@@ -89,9 +94,11 @@ export class LevelService {
         where: { id },
         data,
       });
+
       if (!level) {
         throw new InternalServerErrorException('Level not found!');
       }
+
       return level;
     } catch (error) {
       throw new InternalServerErrorException('Failed to update level');
@@ -103,9 +110,11 @@ export class LevelService {
       const level = await this.prisma.level.delete({
         where: { id },
       });
+
       if (!level) {
         throw new InternalServerErrorException('Level not found!');
       }
+
       return level;
     } catch (error) {
       throw new InternalServerErrorException('Failed to delete level');

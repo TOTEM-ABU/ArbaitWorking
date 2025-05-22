@@ -13,14 +13,20 @@ export class BrandService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: CreateBrandDto) {
+    const existingBrand = await this.prisma.brand.findFirst({
+      where: { name: data.name },
+    });
+
+    if (existingBrand) {
+      throw new BadRequestException('Bu brend allaqachon mavjud');
+    }
+
     try {
       const brand = await this.prisma.brand.create({ data });
+
       return brand;
     } catch (error) {
-      throw new HttpException(
-        'Brend yaratishda xatolik yuz berdi',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException('Brendni yaratishda xatolik');
     }
   }
 
@@ -81,14 +87,15 @@ export class BrandService {
   }
 
   async findOne(id: string) {
+    const exists = await this.prisma.brand.findFirst({ where: { id } });
+
+    if (!exists) {
+      throw new HttpException('Brand topilmadi', HttpStatus.NOT_FOUND);
+    }
     try {
       const brand = await this.prisma.brand.findUnique({
         where: { id },
       });
-
-      if (!brand) {
-        throw new HttpException('Brend topilmadi', HttpStatus.NOT_FOUND);
-      }
 
       return brand;
     } catch (error) {
@@ -100,11 +107,18 @@ export class BrandService {
   }
 
   async update(id: string, data: UpdateBrandDto) {
+    const exists = await this.prisma.brand.findFirst({ where: { id } });
+
+    if (!exists) {
+      throw new HttpException('Brand topilmadi', HttpStatus.NOT_FOUND);
+    }
+
     try {
       const updated = await this.prisma.brand.update({
         where: { id },
         data,
       });
+
       return updated;
     } catch (error) {
       throw new HttpException(
@@ -115,10 +129,17 @@ export class BrandService {
   }
 
   async remove(id: string) {
+    const exists = await this.prisma.brand.findFirst({ where: { id } });
+
+    if (!exists) {
+      throw new HttpException('Brand topilmadi', HttpStatus.NOT_FOUND);
+    }
+
     try {
       const deleted = await this.prisma.brand.delete({
         where: { id },
       });
+
       return deleted;
     } catch (error) {
       throw new HttpException(

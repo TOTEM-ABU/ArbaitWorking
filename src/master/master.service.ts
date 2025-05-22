@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { CreateMasterDto } from './dto/create-master.dto';
 import { UpdateMasterDto } from './dto/update-master.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -8,13 +12,22 @@ import { MarkStarDto } from './dto/markstart-dto';
 export class MasterService {
   constructor(private readonly prisma: PrismaService) {}
   async create(data: CreateMasterDto) {
+    const existing = await this.prisma.master.findUnique({
+      where: { phone: data.phone },
+    });
+
+    if (existing) {
+      throw new BadRequestException(
+        'Bu telefon raqam bilan master allaqachon mavjud',
+      );
+    }
     try {
       const result = await this.prisma.$transaction(async (tx) => {
         const master = await tx.master.create({
           data: {
             name: data.name,
             phone: data.phone,
-            year: data.year,
+            year: new Date('2000-01-01'),
             minWorkingHours: data.minWorkingHours,
             priceHourly: data.priceHourly,
             priceDaily: data.priceDaily,
@@ -44,10 +57,11 @@ export class MasterService {
             skipDuplicates: true,
           });
         }
-        return result;
+        return 'muvaffaqiyatli yaratildi';
       });
     } catch (error) {
-      throw new InternalServerErrorException('Master yaratishda xatolik');
+      console.log(error);
+      throw new BadRequestException('Master yaratishda xatolik');
     }
   }
 
@@ -127,6 +141,14 @@ export class MasterService {
   }
 
   async findOne(id: string) {
+    const existingMaster = await this.prisma.master.findUnique({
+      where: { id },
+    });
+
+    if (!existingMaster) {
+      throw new BadRequestException('Bunday master topilmadi');
+    }
+
     try {
       const master = await this.prisma.master.findFirst({
         where: { id },
@@ -260,9 +282,11 @@ export class MasterService {
       const result = await this.prisma.master.delete({
         where: { id },
       });
+
       if (!result) {
         throw new InternalServerErrorException('Bunday master topilmadi');
       }
+
       return result;
     } catch (error) {
       throw new InternalServerErrorException("Masterni o'chirishda xatolik");

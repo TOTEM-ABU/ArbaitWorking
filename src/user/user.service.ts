@@ -70,7 +70,16 @@ export class UserService {
           role: role ? role : undefined,
           regionId: regionId ? regionId : undefined,
         },
-        include: { Region: true },
+        include: {
+          Region: true,
+          comment: true,
+          order: true,
+          masterStar: {
+            include: {
+              Master: true,
+            },
+          },
+        },
         orderBy: {
           [sortBy]: sortOrder,
         },
@@ -105,7 +114,16 @@ export class UserService {
     try {
       const user = await this.prisma.user.findFirst({
         where: { id },
-        include: { Region: true },
+        include: {
+          Region: true,
+          comment: true,
+          order: true,
+          masterStar: {
+            include: {
+              Master: true,
+            },
+          },
+        },
       });
       if (!user) {
         throw new NotFoundException('User not found');

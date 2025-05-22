@@ -13,6 +13,14 @@ export class SizeService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: CreateSizeDto) {
+    const existingSize = await this.prisma.size.findFirst({
+      where: { name: data.name },
+    });
+
+    if (existingSize) {
+      throw new BadRequestException('Bu nomli o‘lcham allaqachon mavjud');
+    }
+
     try {
       const size = await this.prisma.size.create({ data });
       return size;
@@ -81,14 +89,16 @@ export class SizeService {
   }
 
   async findOne(id: string) {
+    const exists = await this.prisma.size.findFirst({ where: { id } });
+
+    if (!exists) {
+      throw new HttpException('Size topilmadi', HttpStatus.NOT_FOUND);
+    }
+
     try {
       const size = await this.prisma.size.findUnique({
         where: { id },
       });
-
-      if (!size) {
-        throw new HttpException('O‘lcham topilmadi', HttpStatus.NOT_FOUND);
-      }
 
       return size;
     } catch (error) {
@@ -100,11 +110,18 @@ export class SizeService {
   }
 
   async update(id: string, data: UpdateSizeDto) {
+    const exists = await this.prisma.size.findFirst({ where: { id } });
+
+    if (!exists) {
+      throw new HttpException('Size topilmadi', HttpStatus.NOT_FOUND);
+    }
+
     try {
       const updated = await this.prisma.size.update({
         where: { id },
         data,
       });
+
       return updated;
     } catch (error) {
       throw new HttpException(
@@ -115,10 +132,17 @@ export class SizeService {
   }
 
   async remove(id: string) {
+    const exists = await this.prisma.size.findFirst({ where: { id } });
+
+    if (!exists) {
+      throw new HttpException('Size topilmadi', HttpStatus.NOT_FOUND);
+    }
+
     try {
       const deleted = await this.prisma.size.delete({
         where: { id },
       });
+
       return deleted;
     } catch (error) {
       throw new HttpException(

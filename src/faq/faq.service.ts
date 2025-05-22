@@ -3,6 +3,7 @@ import {
   HttpException,
   HttpStatus,
   BadRequestException,
+  NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateFaqDto } from './dto/create-faq.dto';
@@ -93,6 +94,9 @@ export class FaqService {
         where: { id },
         data,
       });
+      if (!updated) {
+        throw new NotFoundException('faq not found!');
+      }
       return updated;
     } catch (error) {
       throw new HttpException(
@@ -107,6 +111,9 @@ export class FaqService {
       const deleted = await this.prisma.fAQ.delete({
         where: { id },
       });
+      if (!deleted) {
+        throw new NotFoundException('faq not found!');
+      }
       return deleted;
     } catch (error) {
       throw new HttpException(

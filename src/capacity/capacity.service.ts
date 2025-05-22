@@ -3,18 +3,33 @@ import {
   HttpException,
   HttpStatus,
   BadRequestException,
+  NotFoundException,
 } from '@nestjs/common';
 import { CreateCapacityDto } from './dto/create-capacity.dto';
 import { UpdateCapacityDto } from './dto/update-capacity.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { NotFoundError } from 'rxjs';
 
 @Injectable()
 export class CapacityService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: CreateCapacityDto) {
+    const existingCapacity = await this.prisma.capacity.findFirst({
+      where: {
+        name: data.name,
+      },
+    });
+
+    if (existingCapacity) {
+      throw new HttpException(
+        'Bu sig‘im allaqachon mavjud',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     try {
       const capacity = await this.prisma.capacity.create({ data });
+
       return capacity;
     } catch (error) {
       throw new HttpException(
@@ -81,30 +96,36 @@ export class CapacityService {
   }
 
   async findOne(id: string) {
+    const exists = await this.prisma.capacity.findFirst({ where: { id } });
+
+    if (!exists) {
+      throw new HttpException('Sig‘im topilmadi', HttpStatus.NOT_FOUND);
+    }
+
     try {
       const capacity = await this.prisma.capacity.findUnique({
         where: { id },
       });
 
-      if (!capacity) {
-        throw new HttpException('Sig‘im topilmadi', HttpStatus.NOT_FOUND);
-      }
-
       return capacity;
     } catch (error) {
-      throw new HttpException(
-        'Sig‘imni olishda xatolik',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new NotFoundException('Sig‘imni olishda xatolik');
     }
   }
 
   async update(id: string, data: UpdateCapacityDto) {
+    const exists = await this.prisma.capacity.findFirst({ where: { id } });
+
+    if (!exists) {
+      throw new HttpException('Sig‘im topilmadi', HttpStatus.NOT_FOUND);
+    }
+
     try {
       const updated = await this.prisma.capacity.update({
         where: { id },
         data,
       });
+
       return updated;
     } catch (error) {
       throw new HttpException(
@@ -115,10 +136,17 @@ export class CapacityService {
   }
 
   async remove(id: string) {
+    const exists = await this.prisma.capacity.findFirst({ where: { id } });
+
+    if (!exists) {
+      throw new HttpException('Sig‘im topilmadi', HttpStatus.NOT_FOUND);
+    }
+
     try {
       const deleted = await this.prisma.capacity.delete({
         where: { id },
       });
+
       return deleted;
     } catch (error) {
       throw new HttpException(

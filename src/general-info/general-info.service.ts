@@ -13,8 +13,19 @@ export class GeneralInfoService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: CreateGeneralInfoDto) {
+    const existingInfo = await this.prisma.generalInfo.findFirst({
+      where: {
+        email: data.email,
+      },
+    });
+
+    if (!existingInfo) {
+      throw new BadRequestException('Bu email allaqachon mavjud');
+    }
     try {
-      return await this.prisma.generalInfo.create({ data });
+      const info = await this.prisma.generalInfo.create({ data });
+
+      return info;
     } catch (error) {
       throw new BadRequestException('GeneralInfo yaratishda xatolik!');
     }
@@ -46,7 +57,7 @@ export class GeneralInfoService {
 
       const items = await this.prisma.generalInfo.findMany({
         where,
-        orderBy: { createdAt: sort }, // faqat createdAt bo'yicha saralash
+        orderBy: { createdAt: sort }, 
         skip: (page - 1) * limit,
         take: limit,
       });
@@ -68,11 +79,18 @@ export class GeneralInfoService {
   }
 
   async findOne(id: string) {
+    const info = await this.prisma.generalInfo.findUnique({
+      where: { id },
+    });
+
+    if (!info) {
+      throw new BadRequestException('Bunday GeneralInfo topilmadi!');
+    }
+
     try {
-      const info = await this.prisma.generalInfo.findUnique({ where: { id } });
-      if (!info) {
-        throw new HttpException('GeneralInfo topilmadi', HttpStatus.NOT_FOUND);
-      }
+      const info = await this.prisma.generalInfo.findUnique({
+        where: { id },
+      });
       return info;
     } catch (error) {
       throw new HttpException(
@@ -83,19 +101,41 @@ export class GeneralInfoService {
   }
 
   async update(id: string, data: UpdateGeneralInfoDto) {
+    const existingInfo = await this.prisma.generalInfo.findUnique({
+      where: { id },
+    });
+
+    if (!existingInfo) {
+      throw new BadRequestException('Bunday GeneralInfo topilmadi!');
+    }
+
     try {
-      return await this.prisma.generalInfo.update({
+      const updatedInfo = await this.prisma.generalInfo.update({
         where: { id },
         data,
       });
+
+      return updatedInfo;
     } catch (error) {
       throw new BadRequestException('Yangilashda xatolik yuz berdi!');
     }
   }
 
   async remove(id: string) {
+    const existingInfo = await this.prisma.generalInfo.findUnique({
+      where: { id },
+    });
+
+    if (!existingInfo) {
+      throw new BadRequestException('Bunday GeneralInfo topilmadi!');
+    }
+
     try {
-      return await this.prisma.generalInfo.delete({ where: { id } });
+      const deletedInfo = await this.prisma.generalInfo.delete({
+        where: { id },
+      });
+
+      return deletedInfo;
     } catch (error) {
       throw new BadRequestException('O‘chirishda xatolik yuz berdi!');
     }
