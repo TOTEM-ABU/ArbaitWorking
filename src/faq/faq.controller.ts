@@ -31,9 +31,6 @@ export class FaqController {
     return this.faqService.create(createFaqDto);
   }
 
-  @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
-  @UseGuards(RoleGuard)
-  @UseGuards(AuthGuard)
   @Get()
   @ApiQuery({ name: 'question', required: false, type: String })
   @ApiQuery({ name: 'answer', required: false, type: String })

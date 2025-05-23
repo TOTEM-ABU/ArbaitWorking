@@ -154,38 +154,101 @@ export class OrderService {
         id: { in: masterIds },
       },
       data: {
-        isActive: false,
+        isActive: true,
       },
+    });
+
+    await this.prisma.order.update({
+      where: { id: orderId },
+      data: { status: statusType.IN_PROGRESS },
     });
 
     return { message: 'Masterlar muvaffaqiyatli biriktirildi' };
   }
 
-  async findAll() {
-    try {
-      const order = this.prisma.order.findMany({
-        include: {
-          orderTools: {
-            include: {
-              Tool: true,
-            },
-          },
-          orderProducts: {
-            include: {
-              Product: true,
-            },
-          },
-          masters: {
-            include: {
-              Master: true,
-            },
-          },
+  async findAll(query: any) {
+    const {
+      total,
+      lat,
+      long,
+      address,
+      date,
+      paymentType,
+      withDelivery,
+      status,
+      toolId,
+      productId,
+      masterId,
+      sort,
+      page = 1,
+      limit = 10,
+    } = query;
+
+    const where: any = {};
+
+    if (total !== undefined) where.total = total;
+    if (lat !== undefined) where.lat = lat;
+    if (long !== undefined) where.long = long;
+    if (address !== undefined)
+      where.address = { contains: address, mode: 'insensitive' };
+    if (date !== undefined) where.date = new Date(date);
+    if (paymentType !== undefined) where.paymentType = paymentType;
+    if (withDelivery !== undefined) where.withDelivery = withDelivery;
+    if (status !== undefined) where.status = status;
+
+    // Filter by relation ids:
+    if (toolId && toolId.length > 0) {
+      where.orderTools = {
+        some: {
+          toolId: { in: toolId },
         },
-      });
-      return order;
-    } catch (error) {
-      throw new NotFoundException('Orders not found');
+      };
     }
+
+    if (productId && productId.length > 0) {
+      where.orderProducts = {
+        some: {
+          productId: { in: productId },
+        },
+      };
+    }
+
+    if (masterId && masterId.length > 0) {
+      where.masters = {
+        some: {
+          masterId: { in: masterId },
+        },
+      };
+    }
+
+    // Sorting
+    let orderBy = {};
+    if (sort) {
+      // sort example: "date:asc" or "total:desc"
+      const [field, order] = sort.split(':');
+      orderBy = {
+        [field]: order,
+      };
+    } else {
+      orderBy = { date: 'desc' }; // default sort
+    }
+
+    const skip = (page - 1) * limit;
+
+    const orders = await this.prisma.order.findMany({
+      where,
+      include: {
+        orderTools: { include: { Tool: true } },
+        orderProducts: { include: { Product: true } },
+        masters: { include: { Master: true } },
+        comment: true,
+      },
+      orderBy,
+      skip,
+      take: limit,
+    });
+
+    return orders;
   }
 
   async findOne(id: string) {
@@ -207,6 +270,7 @@ export class OrderService {
             Master: true,
           },
         },
+        comment: true,
       },
     });
 

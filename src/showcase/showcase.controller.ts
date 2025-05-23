@@ -31,9 +31,6 @@ export class ShowcaseController {
     return this.showcaseService.create(dto);
   }
 
-  @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
-  @UseGuards(RoleGuard)
-  @UseGuards(AuthGuard)
   @Get()
   @ApiQuery({ name: 'name', required: false, type: String })
   @ApiQuery({ name: 'description', required: false, type: String })

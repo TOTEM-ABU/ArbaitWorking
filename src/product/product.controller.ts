@@ -30,7 +30,7 @@ export class ProductController {
     return this.productService.create(createProductDto);
   }
 
-  @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN, RoleStatus.VIEWER_ADMIN)
+  @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
   @UseGuards(RoleGuard)
   @UseGuards(AuthGuard)
   @Get()
@@ -75,7 +75,7 @@ export class ProductController {
     });
   }
 
-  @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN, RoleStatus.VIEWER_ADMIN)
+  @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
   @UseGuards(RoleGuard)
   @UseGuards(AuthGuard)
   @Get(':id')

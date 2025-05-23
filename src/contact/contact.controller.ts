@@ -30,10 +30,7 @@ export class ContactController {
   create(@Body() createContactDto: CreateContactDto) {
     return this.contactService.create(createContactDto);
   }
-
-  @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
-  @UseGuards(RoleGuard)
-  @UseGuards(AuthGuard)
+  
   @Get()
   @ApiQuery({ name: 'name', required: false, type: String })
   @ApiQuery({ name: 'surName', required: false, type: String })

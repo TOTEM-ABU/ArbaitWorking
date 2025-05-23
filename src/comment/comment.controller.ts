@@ -16,6 +16,9 @@ import { UpdateCommentDto } from './dto/update-comment.dto';
 import { ApiQuery } from '@nestjs/swagger';
 import { Request } from 'express';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { RoleStatus } from '@prisma/client';
+import { Roles } from 'src/user/decorators/roles.decorators';
+import { RoleGuard } from 'src/role/role.guard';
 
 @Controller('comment')
 export class CommentController {
@@ -24,8 +27,8 @@ export class CommentController {
   @UseGuards(AuthGuard)
   @Post()
   create(@Body() createCommentDto: CreateCommentDto, @Req() req: any) {
-    const userId = req.user.id;
-    return this.commentService.create({ ...createCommentDto, userId });
+    const userId = req['user'];
+    return this.commentService.create(createCommentDto, userId);
   }
 
   @Get()

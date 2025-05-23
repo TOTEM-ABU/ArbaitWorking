@@ -12,9 +12,9 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class CommentService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: CreateCommentDto & { userId: string }) {
+  async create(data: CreateCommentDto, userId: string ) {
     try {
-      const comment = await this.prisma.comment.create({ data });
+      const comment = await this.prisma.comment.create({ data: { ...data, userId } });
       if (!comment) {
         throw new BadRequestException('Comment not created');
       }

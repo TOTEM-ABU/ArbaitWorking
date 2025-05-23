@@ -57,6 +57,9 @@ export class LevelController {
     });
   }
 
+  @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
+  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.levelService.findOne(id);
@@ -70,7 +73,7 @@ export class LevelController {
     return this.levelService.update(id, updateLevelDto);
   }
 
-  @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
+  @Roles(RoleStatus.ADMIN)
   @UseGuards(RoleGuard)
   @UseGuards(AuthGuard)
   @Delete(':id')

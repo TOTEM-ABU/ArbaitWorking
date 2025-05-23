@@ -31,9 +31,6 @@ export class GeneralInfoController {
     return this.generalInfoService.create(createDto);
   }
 
-  @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
-  @UseGuards(RoleGuard)
-  @UseGuards(AuthGuard)
   @Get()
   @ApiQuery({ name: 'email', required: false, type: String })
   @ApiQuery({ name: 'phones', required: false, type: String })
@@ -80,7 +77,7 @@ export class GeneralInfoController {
     return this.generalInfoService.update(id, updateDto);
   }
 
-  @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
+  @Roles(RoleStatus.ADMIN)
   @UseGuards(RoleGuard)
   @UseGuards(AuthGuard)
   @Delete(':id')

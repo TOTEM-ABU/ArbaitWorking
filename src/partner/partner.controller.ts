@@ -31,9 +31,6 @@ export class PartnerController {
     return this.partnerService.create(createPartnerDto);
   }
 
-  @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
-  @UseGuards(RoleGuard)
-  @UseGuards(AuthGuard)
   @Get()
   @ApiQuery({ name: 'name', required: false, type: String })
   @ApiQuery({ name: 'sort', required: false, enum: ['asc', 'desc'] })

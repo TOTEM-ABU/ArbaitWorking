@@ -22,9 +22,9 @@ import { RoleStatus } from '@prisma/client';
 export class RegionController {
   constructor(private readonly regionService: RegionService) {}
 
-  // @Roles(RoleStatus.ADMIN)
-  // @UseGuards(RoleGuard)
-  // @UseGuards(AuthGuard)
+  @Roles(RoleStatus.ADMIN)
+  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard)
   @Post()
   create(@Body() data: CreateRegionDto) {
     return this.regionService.create(data);

@@ -3,9 +3,12 @@ import {
   IsInt,
   IsString,
   IsUUID,
+  ValidateNested,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { measure } from '@prisma/client';
+import { Type } from 'class-transformer';
+import { ProductToolDto } from './productTool.dto';
 
 export class OrderProductDto {
   @ApiProperty({ example: "product's (UUID)" })
@@ -30,4 +33,9 @@ export class OrderProductDto {
   @IsEnum(measure)
   @IsString()
   measure: measure;
+
+  @ApiProperty({ type: [ProductToolDto] })
+  @ValidateNested({ each: true })
+  @Type(() => ProductToolDto)
+  orderProducts: ProductToolDto[];
 }

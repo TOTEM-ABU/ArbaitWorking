@@ -24,6 +24,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { MulterController } from './multer/multer.controller';
+import { TgModule } from './tg/tg.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { MulterController } from './multer/multer.controller';
     ShowcaseModule,
     PartnerModule,
     MailModule,
+    TgModule,
     JwtModule.register({
       global: true,
       secret: 'soz',
