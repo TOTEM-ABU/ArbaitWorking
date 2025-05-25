@@ -214,6 +214,20 @@ CREATE TABLE "Comment" (
 );
 
 -- CreateTable
+CREATE TABLE "Basket" (
+    "id" SERIAL NOT NULL,
+    "userId" INTEGER NOT NULL,
+    "productId" TEXT,
+    "toolsId" TEXT,
+    "levelId" TEXT,
+    "measure" "measure" NOT NULL,
+    "total" INTEGER NOT NULL,
+    "time" INTEGER NOT NULL,
+
+    CONSTRAINT "Basket_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "ToolProduct" (
     "toolId" TEXT NOT NULL,
     "productId" TEXT NOT NULL,
@@ -442,6 +456,15 @@ ALTER TABLE "Comment" ADD CONSTRAINT "Comment_orderId_fkey" FOREIGN KEY ("orderI
 
 -- AddForeignKey
 ALTER TABLE "Comment" ADD CONSTRAINT "Comment_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Basket" ADD CONSTRAINT "Basket_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Basket" ADD CONSTRAINT "Basket_toolsId_fkey" FOREIGN KEY ("toolsId") REFERENCES "Tool"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Basket" ADD CONSTRAINT "Basket_levelId_fkey" FOREIGN KEY ("levelId") REFERENCES "Level"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ToolProduct" ADD CONSTRAINT "ToolProduct_toolId_fkey" FOREIGN KEY ("toolId") REFERENCES "Tool"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

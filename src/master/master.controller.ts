@@ -114,8 +114,7 @@ export class MasterController {
   @UseGuards(AuthGuard)
   @Post('star')
   async markStar(@Body() dto: MarkStarDto, @Req() req: any) {
-    const userId = req.user.id;
-    return this.masterService.markStarForMaster(dto, userId);
+    return this.masterService.markStarForMaster(dto, req['user']);
   }
 
   @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)

@@ -116,7 +116,27 @@ export class OrderService {
       },
     });
 
+    await this.clearUserBasket(userId);
+
     return finalOrder;
+  }
+
+  private async clearUserBasket(userId: string) {
+    try {
+      await this.prisma.basket.deleteMany({
+        where: {
+          userId: userId,
+        },
+      });
+
+      await this.prisma.basket.deleteMany({
+        where: {
+          userId: userId,
+        },
+      });
+    } catch (error) {
+      console.error('Failed to clear user basket:', error);
+    }
   }
 
   async addMastersToOrder(dto: AddMastersToOrderDto) {

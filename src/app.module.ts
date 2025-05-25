@@ -24,7 +24,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { MulterController } from './multer/multer.controller';
-import { TgModule } from './tg/tg.module';
+import { BasketModule } from './basket/basket.module';
 
 @Module({
   imports: [
@@ -47,7 +47,6 @@ import { TgModule } from './tg/tg.module';
     ShowcaseModule,
     PartnerModule,
     MailModule,
-    TgModule,
     JwtModule.register({
       global: true,
       secret: 'soz',
@@ -57,6 +56,7 @@ import { TgModule } from './tg/tg.module';
       rootPath: join(__dirname, '..', 'uploads'),
       serveRoot: '/uploads',
     }),
+    BasketModule,
   ],
   controllers: [AppController, MulterController],
   providers: [AppService],

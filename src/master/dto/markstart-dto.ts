@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsString, IsUUID } from 'class-validator';
+import { IsNumber, IsString, IsUUID, Max, Min } from 'class-validator';
 
 export class MarkStarDto {
   @ApiProperty()
@@ -9,5 +9,7 @@ export class MarkStarDto {
 
   @ApiProperty()
   @IsNumber()
+  @Max(5)
+  @Min(1)
   star: number;
 }

@@ -14,17 +14,17 @@ export class CreateUserDto {
   @IsString()
   name: string;
 
-  @ApiProperty({ example: 'string1234@gmail.com' })
+  @ApiProperty({ example: 'string@gmail.com' })
   @IsString()
   @IsEmail()
   email: string;
 
-  @ApiProperty({ example: 'string1234' })
+  @ApiProperty({ example: 'string' })
   @IsString()
   @Length(2, 6)
   password: string;
 
-  @ApiProperty({ example: '+998883334545' })
+  @ApiProperty({ example: '+998XXXXXXXXX' })
   @IsString()
   @IsPhoneNumber('UZ')
   phoneNumber: string;

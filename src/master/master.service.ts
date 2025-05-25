@@ -21,6 +21,7 @@ export class MasterService {
         'Bu telefon raqam bilan master allaqachon mavjud',
       );
     }
+
     try {
       const result = await this.prisma.$transaction(async (tx) => {
         const master = await tx.master.create({
@@ -247,7 +248,6 @@ export class MasterService {
       const master = await this.prisma.masterStar.create({
         data: {
           masterId,
-          userId,
           star,
         },
       });
