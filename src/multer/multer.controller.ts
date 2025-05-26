@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Controller,
   Post,
   UploadedFile,
@@ -34,6 +35,11 @@ export class MulterController {
     }),
   )
   uploadFile(@UploadedFile() file: Express.Multer.File) {
+
+    if (!file) {
+      throw new BadRequestException('Fayl yuborilmadi');
+    }
+    
     return { url: file.filename };
   }
 }

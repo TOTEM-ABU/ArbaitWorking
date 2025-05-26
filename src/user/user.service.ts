@@ -14,12 +14,9 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { Request } from 'express';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
-import { CreateYurDto } from './dto/create-yur.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ResendOtpDto } from './dto/resend-otp.dto';
 import { AddAdminDto } from './dto/addAdmin.dto';
-import { Email } from 'nestjs-telegraf';
-import { RoleStatus } from '@prisma/client';
 
 @Injectable()
 export class UserService {
@@ -72,14 +69,7 @@ export class UserService {
         },
         include: {
           Region: true,
-          comment: true,
-          order: true,
-          masterStar: {
-            include: {
-              Master: true,
-            },
-          },
-        },
+        },  
         orderBy: {
           [sortBy]: sortOrder,
         },
@@ -110,33 +100,6 @@ export class UserService {
     }
   }
 
-  async findOne(id: string) {
-    try {
-      const user = await this.prisma.user.findFirst({
-        where: { id },
-        include: {
-          Region: true,
-          comment: true,
-          order: true,
-          masterStar: {
-            include: {
-              Master: true,
-            },
-          },
-        },
-      });
-      if (!user) {
-        throw new NotFoundException('User not found');
-      }
-      return user;
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      throw new InternalServerErrorException('Failed to find user');
-    }
-  }
-
   private generateOTP(length = 6): string {
     try {
       const digits = '0123456789';
@@ -147,60 +110,6 @@ export class UserService {
       return otp;
     } catch (error) {
       throw new InternalServerErrorException('Failed to generate OTP');
-    }
-  }
-
-  async registerYuridik(data: CreateYurDto) {
-    try {
-      const existingUser = await this.prisma.user.findFirst({
-        where: { email: data.email },
-      });
-
-      if (data.role && data.role.toUpperCase() === 'ADMIN') {
-        throw new BadRequestException(
-          'You are not allowed to register as ADMIN',
-        );
-      }
-
-      if (existingUser) {
-        throw new BadRequestException('User already exists!');
-      }
-
-      const hash = bcrypt.hashSync(data.password, 10);
-      const otp = this.generateOTP();
-      const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000);
-
-      const newUser = await this.prisma.user.create({
-        data: {
-          ...data,
-          password: hash,
-          otp,
-          otpExpiresAt,
-        },
-      });
-
-      try {
-        await this.mailer.sendMail(
-          data.email,
-          'Your OTP Code',
-          `Your OTP code is: ${otp}\n\nIt will expire in 5 minutes.`,
-        );
-        console.log('OTP sent to: ', data.email);
-      } catch (mailError) {
-        console.error('Failed to send OTP: ', mailError);
-        await this.prisma.user.delete({ where: { id: newUser.id } });
-        throw new InternalServerErrorException('Failed to send OTP');
-      }
-
-      return newUser;
-    } catch (error) {
-      if (
-        error instanceof BadRequestException ||
-        error instanceof InternalServerErrorException
-      ) {
-        throw error;
-      }
-      throw new InternalServerErrorException('Failed to register user');
     }
   }
 
@@ -228,8 +137,6 @@ export class UserService {
         data: {
           ...data,
           password: hash,
-          otp,
-          otpExpiresAt,
         },
       });
 
@@ -239,7 +146,6 @@ export class UserService {
           'Your OTP Code',
           `Your OTP code is: ${otp}\n\nIt will expire in 5 minutes.`,
         );
-        console.log('OTP sent to: ', data.email);
       } catch (mailError) {
         console.error('Failed to send OTP: ', mailError);
         await this.prisma.user.delete({ where: { id: newUser.id } });
@@ -279,8 +185,6 @@ export class UserService {
         data: {
           ...data,
           password: hash,
-          otp,
-          otpExpiresAt,
         },
       });
 

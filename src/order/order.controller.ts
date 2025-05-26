@@ -96,12 +96,10 @@ export class OrderController {
     });
   }
 
-  @Roles(RoleStatus.ADMIN)
-  @UseGuards(RoleGuard)
   @UseGuards(AuthGuard)
-  @Post('addMasters')
-  addMasters(@Body() data: AddMastersToOrderDto) {
-    return this.orderService.addMastersToOrder(data);
+  @Get('myOrders/:id')
+  get(@Req() req: Request) {
+    return this.orderService.myOrders(req['user']);
   }
 
   @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN, RoleStatus.VIEWER_ADMIN)
@@ -124,9 +122,11 @@ export class OrderController {
     return this.orderService.remove(id);
   }
 
+  @Roles(RoleStatus.ADMIN)
+  @UseGuards(RoleGuard)
   @UseGuards(AuthGuard)
-  @Get('myOrders/:id')
-  get(@Req() req: Request) {
-    return this.orderService.myOrders(req['user']);
+  @Post('addMasters')
+  addMasters(@Body() data: AddMastersToOrderDto) {
+    return this.orderService.addMastersToOrder(data);
   }
 }

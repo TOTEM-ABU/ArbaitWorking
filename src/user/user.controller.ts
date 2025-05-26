@@ -18,7 +18,6 @@ import { UpdatePasswordDto } from './dto/update-password.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { Request } from 'express';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { CreateYurDto } from './dto/create-yur.dto';
 import { RoleGuard } from 'src/role/role.guard';
 import { Roles } from './decorators/roles.decorators';
 import { RoleStatus } from '@prisma/client';
@@ -31,12 +30,7 @@ import { ApiQuery } from '@nestjs/swagger';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post('registerYuridik')
-  async registerYuridik(@Body() dto: CreateYurDto) {
-    return this.userService.registerYuridik(dto);
-  }
-
-  @Post('registerFizik')
+  @Post('register')
   async register(@Body() dto: CreateUserDto) {
     return this.userService.register(dto);
   }
@@ -85,6 +79,9 @@ export class UserController {
     return this.userService.delete(id);
   }
 
+  @Roles(RoleStatus.ADMIN)
+  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard)
   @Get()
   @ApiQuery({ name: 'name', required: false })
   @ApiQuery({ name: 'email', required: false })
@@ -127,11 +124,6 @@ export class UserController {
       page,
       limit,
     });
-  }
-
-  @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return this.userService.findOne(id);
   }
 
   @UseGuards(AuthGuard)

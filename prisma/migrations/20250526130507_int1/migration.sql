@@ -216,7 +216,7 @@ CREATE TABLE "Comment" (
 -- CreateTable
 CREATE TABLE "Basket" (
     "id" SERIAL NOT NULL,
-    "userId" INTEGER NOT NULL,
+    "userId" TEXT NOT NULL,
     "productId" TEXT,
     "toolsId" TEXT,
     "levelId" TEXT,

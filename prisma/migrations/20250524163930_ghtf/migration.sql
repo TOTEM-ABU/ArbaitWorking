@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE "Basket" ALTER COLUMN "userId" SET DATA TYPE TEXT;
