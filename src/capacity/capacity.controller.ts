@@ -17,6 +17,7 @@ import { RoleGuard } from 'src/role/role.guard';
 import { Roles } from 'src/user/decorators/roles.decorators';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { RoleStatus } from '@prisma/client';
+import { SessionGuard } from 'src/sessionguard/session.guard';
 
 @Controller('capacity')
 export class CapacityController {
@@ -24,6 +25,7 @@ export class CapacityController {
 
   @Roles(RoleStatus.ADMIN)
   @UseGuards(RoleGuard)
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Post()
   create(@Body() data: CreateCapacityDto) {
@@ -32,6 +34,7 @@ export class CapacityController {
 
   @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
   @UseGuards(RoleGuard)
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Get()
   @ApiQuery({ name: 'search', required: false })
@@ -56,6 +59,7 @@ export class CapacityController {
 
   @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
   @UseGuards(RoleGuard)
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
@@ -64,6 +68,7 @@ export class CapacityController {
 
   @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
   @UseGuards(RoleGuard)
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() data: UpdateCapacityDto) {
@@ -72,6 +77,7 @@ export class CapacityController {
 
   @Roles(RoleStatus.ADMIN)
   @UseGuards(RoleGuard)
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {

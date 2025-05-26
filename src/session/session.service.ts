@@ -33,7 +33,7 @@ export class SessionService {
         data: { isVerified: false },
       });
 
-      return { message: 'Session o‘chirildi, user isVerified false qilindi' };
+      return { message: 'Session o‘chirildi!' };
     });
   }
 }

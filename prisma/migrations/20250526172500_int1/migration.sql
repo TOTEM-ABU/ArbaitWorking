@@ -33,12 +33,9 @@ CREATE TABLE "User" (
     "bankNomi" TEXT,
     "faoliyatTuri" TEXT,
     "bankAddress" TEXT,
-    "otp" TEXT,
     "role" "RoleStatus" NOT NULL,
     "regionId" TEXT,
-    "otpExpiresAt" TIMESTAMP(3),
     "refreshToken" TEXT,
-    "deviceInfo" TEXT,
     "isVerified" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 

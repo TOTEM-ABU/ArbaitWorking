@@ -52,13 +52,10 @@ model User {
   bankNomi     String?
   faoliyatTuri String?
   bankAddress  String?
-  otp          String?
   role         RoleStatus
   Region       Region?    @relation(fields: [regionId], references: [id])
   regionId     String?
-  otpExpiresAt DateTime?
   refreshToken String?
-  deviceInfo   String?
   isVerified   Boolean    @default(false)
 
   session    Session[]

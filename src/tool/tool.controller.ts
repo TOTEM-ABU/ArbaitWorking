@@ -17,6 +17,7 @@ import { Roles } from 'src/user/decorators/roles.decorators';
 import { RoleGuard } from 'src/role/role.guard';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { RoleStatus } from '@prisma/client';
+import { SessionGuard } from 'src/sessionguard/session.guard';
 
 @Controller('tool')
 export class ToolController {
@@ -24,6 +25,7 @@ export class ToolController {
 
   @Roles(RoleStatus.ADMIN)
   @UseGuards(RoleGuard)
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Post()
   create(@Body() createToolDto: CreateToolDto) {
@@ -32,6 +34,7 @@ export class ToolController {
 
   @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN, RoleStatus.VIEWER_ADMIN)
   @UseGuards(RoleGuard)
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Get()
   @ApiQuery({ name: 'name', required: false })
@@ -77,6 +80,7 @@ export class ToolController {
 
   @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN, RoleStatus.VIEWER_ADMIN)
   @UseGuards(RoleGuard)
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
@@ -85,6 +89,7 @@ export class ToolController {
 
   @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
   @UseGuards(RoleGuard)
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateToolDto: UpdateToolDto) {
@@ -93,6 +98,7 @@ export class ToolController {
 
   @Roles(RoleStatus.ADMIN)
   @UseGuards(RoleGuard)
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {

@@ -17,6 +17,7 @@ import { RoleGuard } from 'src/role/role.guard';
 import { Roles } from 'src/user/decorators/roles.decorators';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { RoleStatus } from '@prisma/client';
+import { SessionGuard } from 'src/sessionguard/session.guard';
 
 @Controller('region')
 export class RegionController {
@@ -24,6 +25,7 @@ export class RegionController {
 
   @Roles(RoleStatus.ADMIN)
   @UseGuards(RoleGuard)
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Post()
   create(@Body() data: CreateRegionDto) {
@@ -64,6 +66,7 @@ export class RegionController {
 
   @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
   @UseGuards(RoleGuard)
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() data: UpdateRegionDto) {
@@ -72,6 +75,7 @@ export class RegionController {
 
   @Roles(RoleStatus.ADMIN)
   @UseGuards(RoleGuard)
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {

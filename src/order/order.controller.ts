@@ -20,11 +20,13 @@ import { RoleStatus } from '@prisma/client';
 import { AddMastersToOrderDto } from './dto/addMasters.dto';
 import { RoleGuard } from 'src/role/role.guard';
 import { Roles } from 'src/user/decorators/roles.decorators';
+import { SessionGuard } from 'src/sessionguard/session.guard';
 
 @Controller('order')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Post()
   create(@Body() createOrderDto: CreateOrderDto, @Req() req: Request) {
@@ -33,6 +35,7 @@ export class OrderController {
 
   @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN, RoleStatus.VIEWER_ADMIN)
   @UseGuards(RoleGuard)
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Get()
   @ApiQuery({ name: 'total', required: false })
@@ -96,6 +99,7 @@ export class OrderController {
     });
   }
 
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Get('myOrders/:id')
   get(@Req() req: Request) {
@@ -104,18 +108,21 @@ export class OrderController {
 
   @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN, RoleStatus.VIEWER_ADMIN)
   @UseGuards(RoleGuard)
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.orderService.findOne(id);
   }
 
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
     return this.orderService.update(id, updateOrderDto);
   }
 
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
@@ -124,6 +131,7 @@ export class OrderController {
 
   @Roles(RoleStatus.ADMIN)
   @UseGuards(RoleGuard)
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Post('addMasters')
   addMasters(@Body() data: AddMastersToOrderDto) {

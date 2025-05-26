@@ -17,6 +17,7 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { RoleGuard } from 'src/role/role.guard';
 import { Roles } from 'src/user/decorators/roles.decorators';
 import { RoleStatus } from '@prisma/client';
+import { SessionGuard } from 'src/sessionguard/session.guard';
 
 @ApiTags('Partner')
 @Controller('partner')
@@ -25,6 +26,7 @@ export class PartnerController {
 
   @Roles(RoleStatus.ADMIN)
   @UseGuards(RoleGuard)
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Post()
   create(@Body() createPartnerDto: CreatePartnerDto) {
@@ -54,6 +56,7 @@ export class PartnerController {
 
   @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
   @UseGuards(RoleGuard)
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
@@ -62,6 +65,7 @@ export class PartnerController {
 
   @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
   @UseGuards(RoleGuard)
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updatePartnerDto: UpdatePartnerDto) {
@@ -70,6 +74,7 @@ export class PartnerController {
 
   @Roles(RoleStatus.ADMIN)
   @UseGuards(RoleGuard)
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {

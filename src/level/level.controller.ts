@@ -17,6 +17,7 @@ import { Roles } from 'src/user/decorators/roles.decorators';
 import { RoleStatus } from '@prisma/client';
 import { RoleGuard } from 'src/role/role.guard';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { SessionGuard } from 'src/sessionguard/session.guard';
 
 @Controller('level')
 export class LevelController {
@@ -24,6 +25,7 @@ export class LevelController {
 
   @Roles(RoleStatus.ADMIN)
   @UseGuards(RoleGuard)
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Post()
   create(@Body() createLevelDto: CreateLevelDto) {
@@ -59,6 +61,7 @@ export class LevelController {
 
   @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
   @UseGuards(RoleGuard)
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
@@ -67,6 +70,7 @@ export class LevelController {
 
   @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
   @UseGuards(RoleGuard)
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateLevelDto: UpdateLevelDto) {
@@ -75,6 +79,7 @@ export class LevelController {
 
   @Roles(RoleStatus.ADMIN)
   @UseGuards(RoleGuard)
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {

@@ -127,7 +127,7 @@ export class UserController {
   }
 
   @UseGuards(AuthGuard)
-  @Get('me/:id')
+  @Get('me')
   async me(@Req() req: Request) {
     return this.userService.me(req['user']);
   }

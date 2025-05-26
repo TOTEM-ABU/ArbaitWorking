@@ -19,6 +19,7 @@ import { RoleStatus } from '@prisma/client';
 import { RoleGuard } from 'src/role/role.guard';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { MarkStarDto } from './dto/markstart-dto';
+import { SessionGuard } from 'src/sessionguard/session.guard';
 
 @Controller('master')
 export class MasterController {
@@ -26,6 +27,7 @@ export class MasterController {
 
   @Roles(RoleStatus.ADMIN)
   @UseGuards(RoleGuard)
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Post()
   create(@Body() createMasterDto: CreateMasterDto) {
@@ -34,6 +36,7 @@ export class MasterController {
 
   @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN, RoleStatus.VIEWER_ADMIN)
   @UseGuards(RoleGuard)
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Get()
   @ApiQuery({ name: 'name', required: false })
@@ -105,12 +108,14 @@ export class MasterController {
 
   @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN, RoleStatus.VIEWER_ADMIN)
   @UseGuards(RoleGuard)
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.masterService.findOne(id);
   }
 
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Post('star')
   async markStar(@Body() dto: MarkStarDto, @Req() req: any) {
@@ -119,6 +124,7 @@ export class MasterController {
 
   @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
   @UseGuards(RoleGuard)
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateMasterDto: UpdateMasterDto) {
@@ -127,6 +133,7 @@ export class MasterController {
 
   @Roles(RoleStatus.ADMIN)
   @UseGuards(RoleGuard)
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {

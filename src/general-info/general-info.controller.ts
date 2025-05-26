@@ -17,6 +17,7 @@ import { RoleStatus } from '@prisma/client';
 import { Roles } from 'src/user/decorators/roles.decorators';
 import { RoleGuard } from 'src/role/role.guard';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { SessionGuard } from 'src/sessionguard/session.guard';
 
 @ApiTags('GeneralInfo')
 @Controller('general-info')
@@ -25,6 +26,7 @@ export class GeneralInfoController {
 
   @Roles(RoleStatus.ADMIN)
   @UseGuards(RoleGuard)
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Post()
   create(@Body() createDto: CreateGeneralInfoDto) {
@@ -63,6 +65,7 @@ export class GeneralInfoController {
 
   @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
   @UseGuards(RoleGuard)
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
@@ -71,6 +74,7 @@ export class GeneralInfoController {
 
   @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
   @UseGuards(RoleGuard)
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateDto: UpdateGeneralInfoDto) {
@@ -79,6 +83,7 @@ export class GeneralInfoController {
 
   @Roles(RoleStatus.ADMIN)
   @UseGuards(RoleGuard)
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {

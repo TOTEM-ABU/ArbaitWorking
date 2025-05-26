@@ -17,6 +17,7 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { RoleGuard } from 'src/role/role.guard';
 import { Roles } from 'src/user/decorators/roles.decorators';
 import { RoleStatus } from '@prisma/client';
+import { SessionGuard } from 'src/sessionguard/session.guard';
 
 @ApiTags('Contact')
 @Controller('contact')
@@ -25,12 +26,13 @@ export class ContactController {
 
   @Roles(RoleStatus.ADMIN)
   @UseGuards(RoleGuard)
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Post()
   create(@Body() createContactDto: CreateContactDto) {
     return this.contactService.create(createContactDto);
   }
-  
+
   @Get()
   @ApiQuery({ name: 'name', required: false, type: String })
   @ApiQuery({ name: 'surName', required: false, type: String })
@@ -72,6 +74,7 @@ export class ContactController {
 
   @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
   @UseGuards(RoleGuard)
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
@@ -80,6 +83,7 @@ export class ContactController {
 
   @Roles(RoleStatus.ADMIN, RoleStatus.SUPER_ADMIN)
   @UseGuards(RoleGuard)
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateContactDto: UpdateContactDto) {
@@ -88,6 +92,7 @@ export class ContactController {
 
   @Roles(RoleStatus.ADMIN)
   @UseGuards(RoleGuard)
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {

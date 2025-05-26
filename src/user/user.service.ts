@@ -69,7 +69,7 @@ export class UserService {
         },
         include: {
           Region: true,
-        },  
+        },
         orderBy: {
           [sortBy]: sortOrder,
         },
@@ -119,9 +119,13 @@ export class UserService {
         where: { email: data.email },
       });
 
-      if (data.role && data.role.toUpperCase() === 'ADMIN') {
+      if (
+        (data.role && data.role.toUpperCase() === 'ADMIN',
+        data.role.toUpperCase() === 'SUPER_ADMIN',
+        data.role.toUpperCase() === 'VIEWER_ADMIN')
+      ) {
         throw new BadRequestException(
-          'You are not allowed to register as ADMIN',
+          'You are not allowed to register as ADMIN roles!',
         );
       }
 
@@ -181,6 +185,7 @@ export class UserService {
       const hash = bcrypt.hashSync(data.password, 10);
       const otp = this.generateOTP();
       const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000);
+
       const newUser = await this.prisma.user.create({
         data: {
           ...data,
@@ -227,11 +232,7 @@ export class UserService {
 
       if (user.isVerified) return { message: 'User already verified' };
 
-      if (user.otp !== otp) throw new BadRequestException('Invalid OTP!');
-
-      if (user.otpExpiresAt && new Date() > user.otpExpiresAt) {
-        throw new BadRequestException('OTP expired!');
-      }
+      if (data.otp !== otp) throw new BadRequestException('Invalid OTP!');
 
       await this.prisma.user.update({
         where: { id: user.id },
@@ -270,14 +271,6 @@ export class UserService {
 
       const otp = this.generateOTP();
       const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000);
-
-      await this.prisma.user.update({
-        where: { id: user.id },
-        data: {
-          otp,
-          otpExpiresAt,
-        },
-      });
 
       await this.mailer.sendMail(
         data.email,

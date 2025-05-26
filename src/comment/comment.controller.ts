@@ -16,14 +16,16 @@ import { UpdateCommentDto } from './dto/update-comment.dto';
 import { ApiQuery } from '@nestjs/swagger';
 import { Request } from 'express';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { RoleStatus } from '@prisma/client';
-import { Roles } from 'src/user/decorators/roles.decorators';
+import { SessionGuard } from 'src/sessionguard/session.guard';
 import { RoleGuard } from 'src/role/role.guard';
+import { Roles } from 'src/user/decorators/roles.decorators';
+import { RoleStatus } from '@prisma/client';
 
 @Controller('comment')
 export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Post()
   create(@Body() createCommentDto: CreateCommentDto, @Req() req: any) {
@@ -31,6 +33,10 @@ export class CommentController {
     return this.commentService.create(createCommentDto, userId);
   }
 
+  @Roles(RoleStatus.ADMIN)
+  @UseGuards(RoleGuard)
+  @UseGuards(SessionGuard)
+  @UseGuards(AuthGuard)
   @Get()
   @ApiQuery({ name: 'orderId', required: false })
   @ApiQuery({ name: 'sortBy', required: false, example: 'createdAt' })
@@ -53,6 +59,7 @@ export class CommentController {
     });
   }
 
+  @UseGuards(SessionGuard)
   @UseGuards(AuthGuard)
   @Get('myComments/:id')
   myComments(@Req() req: Request) {
