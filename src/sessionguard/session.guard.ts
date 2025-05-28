@@ -41,7 +41,7 @@ export class SessionGuard implements CanActivate {
       });
 
       if (!session) {
-        throw new UnauthorizedException('Session expired or invalid device/IP');
+        throw new UnauthorizedException('Session expired or invalid device');
       }
 
       req['user'] = decoded;
