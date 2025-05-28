@@ -125,7 +125,7 @@ export class UserService {
         data.role.toUpperCase() === 'VIEWER_ADMIN')
       ) {
         throw new BadRequestException(
-          'You are not allowed to register as ADMIN roles!',
+          'You are not allowed to register as ADMIN!',
         );
       }
 
@@ -175,7 +175,7 @@ export class UserService {
       });
 
       if (data.role !== 'ADMIN') {
-        throw new BadRequestException('Only ADMIN role is allowed!');
+        throw new BadRequestException('Only ADMIN is allowed!');
       }
 
       if (existingUser) {
